@@ -1,0 +1,7 @@
+# Binarios compilados de MetaTrader
+*.ex5
+*.ex4
+
+# Logs y ficheros de trabajo del terminal
+*.log
+Files/
