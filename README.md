@@ -29,6 +29,7 @@ auditar y cambiar en `MQL5/Include/GoldSignals/SignalEngine.mqh`.
 | `MQL5/Include/GoldSignals/SignalEngine.mqh` | Motor de señales compartido (toda la lógica está aquí) |
 | `docs/ESTRATEGIA.md` | Cómo decide el sistema, filtros, puntuación y cómo ajustarlo |
 | `docs/INSTALACION.md` | Instalación paso a paso, alertas al móvil y Telegram |
+| `docs/MOVIL.md` | Cómo recibir y seguir las señales desde el móvil |
 
 ## Instalación rápida
 
@@ -42,6 +43,9 @@ auditar y cambiar en `MQL5/Include/GoldSignals/SignalEngine.mqh`.
    `GoldSignalsRealtime` (indicador) o `GoldSignalsEA` (robot) sobre él.
 
 Detalle completo, incluidas las notificaciones al móvil, en [`docs/INSTALACION.md`](docs/INSTALACION.md).
+
+¿Solo quieres las señales en el teléfono? Empieza por [`docs/MOVIL.md`](docs/MOVIL.md): la app
+de móvil no ejecuta MQL5, así que el PC o un VPS calcula y el móvil recibe.
 
 ## Cómo funciona la señal, en una frase
 
