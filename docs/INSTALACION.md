@@ -6,16 +6,27 @@
 de MetaTrader, copia los archivos en la carpeta correcta de cada uno y **los compila llamando a
 MetaEditor por línea de comandos**, para que no tengas ni que abrir el editor.
 
-Abre PowerShell en la carpeta del repositorio y ejecuta:
+Abre PowerShell (tecla Windows → escribe `powershell` → Enter) y pega esta línea:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\instalar.ps1
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/rikycunha-coder/el-profe/claude/metatrader-gold-signals-realtime-y46qrf/tools/instalar.ps1 | iex"
 ```
 
-Detecta MT4 y MT5 a la vez, incluidas las instalaciones *portable*. Opciones:
+No necesitas descargar nada antes: el propio comando trae los archivos. Detecta MT4 y MT5 a la
+vez, incluidas las instalaciones *portable*.
+
+**Instala solo los indicadores.** No se instala el robot salvo que lo pidas: los indicadores
+dibujan y avisan, y no pueden operar (MetaTrader no permite a un indicador abrir órdenes).
+
+Si ya tienes el repositorio descargado, puedes ejecutarlo en local con opciones:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\instalar.ps1 -ConRobot
+```
 
 | Opción | Para qué |
 |---|---|
+| `-ConRobot` | Instalar también el robot (EA), además de los indicadores |
 | `-Origen C:\ruta\al\repositorio` | Usar archivos ya descargados en vez de bajarlos de GitHub |
 | `-Plataforma mt4` / `mt5` | Instalar solo en una plataforma |
 | `-SinCompilar` | Copiar sin compilar |

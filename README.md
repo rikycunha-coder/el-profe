@@ -44,11 +44,18 @@ auditar y cambiar en `MQL5/Include/GoldSignals/SignalEngine.mqh`.
 
 ## Instalación rápida
 
-**En Windows, con un comando** (copia los archivos y los compila él solo, en MT4 y MT5):
+**Un solo comando en Windows.** Abre PowerShell y pega esto:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools\instalar.ps1
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/rikycunha-coder/el-profe/claude/metatrader-gold-signals-realtime-y46qrf/tools/instalar.ps1 | iex"
 ```
+
+Descarga los archivos, detecta tus MetaTrader (MT4 y MT5 a la vez) y los compila él solo. No
+hace falta abrir MetaEditor.
+
+Instala **solo los indicadores**: dibujan y avisan, no operan. Un indicador de MetaTrader no
+puede abrir órdenes ni siquiera queriendo — la plataforma no se lo permite. Si además quieres el
+robot, añade `-ConRobot` (ver [`docs/INSTALACION.md`](docs/INSTALACION.md)).
 
 ¿Prefieres hacerlo a mano? Sigue leyendo. ¿Usas MetaTrader 4? Ve directo a
 [`docs/METATRADER4.md`](docs/METATRADER4.md).

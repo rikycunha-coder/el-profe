@@ -15,6 +15,9 @@
                               Si se omite, descarga los archivos de GitHub.
         -Plataforma mt5|mt4|ambas    Por defecto: ambas (las que encuentre).
         -SinCompilar          Solo copia, no compila.
+        -ConRobot             Instalar tambien el robot (EA). Por defecto NO
+                              se instala: solo los indicadores, que se limitan
+                              a dibujar y avisar, sin tocar la cuenta.
 
     El script no borra nada: sobrescribe los archivos del sistema si ya
     existen de una instalacion anterior.
@@ -24,30 +27,42 @@ param(
     [string]$Origen = "",
     [ValidateSet("mt5","mt4","ambas")]
     [string]$Plataforma = "ambas",
-    [switch]$SinCompilar
+    [switch]$SinCompilar,
+    [switch]$ConRobot
 )
 
 $ErrorActionPreference = "Stop"
 
 $RepoRaw = "https://raw.githubusercontent.com/rikycunha-coder/el-profe/claude/metatrader-gold-signals-realtime-y46qrf"
 
-$Archivos = @{
+$Indicadores = @{
     "mt5" = @(
         "MQL5/Include/GoldSignals/SignalEngine.mqh",
         "MQL5/Include/GoldSignals/Candles.mqh",
         "MQL5/Include/GoldSignals/Structures.mqh",
         "MQL5/Indicators/GoldSignalsRealtime.mq5",
-        "MQL5/Indicators/PriceActionPatterns.mq5",
-        "MQL5/Experts/GoldSignalsEA.mq5"
+        "MQL5/Indicators/PriceActionPatterns.mq5"
     )
     "mt4" = @(
         "MQL4/Include/GoldSignals/SignalEngine.mqh",
         "MQL4/Include/GoldSignals/Candles.mqh",
         "MQL4/Include/GoldSignals/Structures.mqh",
         "MQL4/Indicators/GoldSignalsRealtime.mq4",
-        "MQL4/Indicators/PriceActionPatterns.mq4",
-        "MQL4/Experts/GoldSignalsEA.mq4"
+        "MQL4/Indicators/PriceActionPatterns.mq4"
     )
+}
+
+$Robot = @{
+    "mt5" = @("MQL5/Experts/GoldSignalsEA.mq5")
+    "mt4" = @("MQL4/Experts/GoldSignalsEA.mq4")
+}
+
+# Lista final segun se pida o no el robot
+function Lista {
+    param([string]$plataforma)
+    $lista = $Indicadores[$plataforma]
+    if ($ConRobot) { $lista = $lista + $Robot[$plataforma] }
+    return $lista
 }
 
 function Escribir($texto, $color = "Gray") { Write-Host $texto -ForegroundColor $color }
@@ -62,13 +77,15 @@ function Obtener-Origen {
         return (Resolve-Path $ruta).Path
     }
 
-    $tmp = Join-Path $env:TEMP ("el-profe-" + [Guid]::NewGuid().ToString("N").Substring(0,8))
+    $carpetaTmp = $env:TEMP
+    if ([string]::IsNullOrEmpty($carpetaTmp)) { $carpetaTmp = [IO.Path]::GetTempPath() }
+    $tmp = Join-Path $carpetaTmp ("el-profe-" + [Guid]::NewGuid().ToString("N").Substring(0,8))
     New-Item -ItemType Directory -Path $tmp -Force | Out-Null
     Escribir "Descargando los archivos desde GitHub..." "Cyan"
 
     try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch { }
 
-    $todos = $Archivos["mt5"] + $Archivos["mt4"]
+    $todos = (Lista "mt5") + (Lista "mt4")
     foreach ($rel in $todos) {
         $destino = Join-Path $tmp ($rel -replace "/", "\")
         $carpeta = Split-Path $destino -Parent
@@ -173,7 +190,7 @@ function Copiar-Archivos {
     param($origen, $terminal)
 
     $copiados = 0
-    foreach ($rel in $Archivos[$terminal.Plataforma]) {
+    foreach ($rel in (Lista $terminal.Plataforma)) {
         $src = Join-Path $origen ($rel -replace "/", "\")
         if (-not (Test-Path $src)) {
             Escribir "  ! falta en el origen: $rel" "Yellow"
@@ -196,7 +213,7 @@ function Compilar {
     $raiz = Join-Path $terminal.Datos $carpetaRaiz
     $errores = 0
 
-    foreach ($rel in $Archivos[$terminal.Plataforma]) {
+    foreach ($rel in (Lista $terminal.Plataforma)) {
         if ($rel -notmatch "\.mq[45]$") { continue }   # los .mqh no se compilan sueltos
         $archivo = Join-Path $terminal.Datos ($rel -replace "/", "\")
         $log     = [IO.Path]::ChangeExtension($archivo, ".log")
@@ -271,8 +288,12 @@ foreach ($t in $terminales) {
 }
 
 if ($fallos -eq 0) {
-    Escribir "Listo. Reinicia MetaTrader (o clic derecho en el Navegador > Actualizar)" "Green"
-    Escribir "y arrastra el indicador a un grafico." "Green"
+    Escribir "Listo. Reinicia MetaTrader (o clic derecho en el Navegador > Actualizar)," "Green"
+    Escribir "abre un grafico y arrastra el indicador encima." "Green"
+    if (-not $ConRobot) {
+        Escribir ""
+        Escribir "Se han instalado solo los indicadores: dibujan y avisan, no operan." "Gray"
+    }
 } else {
     Escribir "Terminado con $fallos incidencia(s). Revisa los mensajes de arriba." "Yellow"
 }
