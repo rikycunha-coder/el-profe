@@ -154,7 +154,10 @@ void DrawLevels(const GSResult &r)
       return;
 
    string names[3]  = {"lvl_sl","lvl_tp1","lvl_tp2"};
-   double prices[3] = {r.sl,r.tp1,r.tp2};
+   double prices[3];          // MQL exige valores constantes al inicializar un
+   prices[0] = r.sl;          // array en la declaracion: estos no lo son
+   prices[1] = r.tp1;
+   prices[2] = r.tp2;
    color  colors[3] = {clrCrimson,clrSeaGreen,clrSeaGreen};
    string labels[3] = {"SL","TP1","TP2"};
 
