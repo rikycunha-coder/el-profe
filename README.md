@@ -1,7 +1,8 @@
 # Herramientas de trading para MetaTrader 5
 
-Indicadores y robot en MQL5 que generan **señales de compra y venta en tiempo real**, calculadas
-dentro de tu MetaTrader con el feed de precios de tu propio bróker.
+Indicadores y robot que generan **señales de compra y venta en tiempo real**, calculadas dentro
+de tu MetaTrader con el feed de precios de tu propio bróker. Disponibles para **MetaTrader 5
+(MQL5)** y **MetaTrader 4 (MQL4)**.
 
 - **Señales de oro por tendencia** — medias, RSI, ADX y ATR sobre XAUUSD.
 - **Escáner de patrones y figuras** — velas japonesas, canales, triángulos, cuñas y dobles techos.
@@ -37,8 +38,12 @@ auditar y cambiar en `MQL5/Include/GoldSignals/SignalEngine.mqh`.
 | `docs/INSTALACION.md` | Instalación paso a paso, alertas al móvil y Telegram |
 | `docs/MOVIL.md` | Cómo recibir y seguir las señales desde el móvil |
 | `docs/PATRONES.md` | Qué detecta el escáner de patrones y cómo leerlo |
+| `docs/METATRADER4.md` | Versión MT4: instalación y diferencias con MT5 |
+| `MQL4/` | Los mismos tres programas portados a MQL4 |
 
 ## Instalación rápida
+
+¿Usas MetaTrader 4? Ve directo a [`docs/METATRADER4.md`](docs/METATRADER4.md).
 
 1. En MetaTrader 5: **Archivo → Abrir carpeta de datos**.
 2. Copia respetando las carpetas:
