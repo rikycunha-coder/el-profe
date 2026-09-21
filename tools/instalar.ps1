@@ -41,14 +41,16 @@ $Indicadores = @{
         "MQL5/Include/GoldSignals/Candles.mqh",
         "MQL5/Include/GoldSignals/Structures.mqh",
         "MQL5/Indicators/GoldSignalsRealtime.mq5",
-        "MQL5/Indicators/PriceActionPatterns.mq5"
+        "MQL5/Indicators/PriceActionPatterns.mq5",
+        "MQL5/Indicators/SenalesCompraVenta.mq5"
     )
     "mt4" = @(
         "MQL4/Include/GoldSignals/SignalEngine.mqh",
         "MQL4/Include/GoldSignals/Candles.mqh",
         "MQL4/Include/GoldSignals/Structures.mqh",
         "MQL4/Indicators/GoldSignalsRealtime.mq4",
-        "MQL4/Indicators/PriceActionPatterns.mq4"
+        "MQL4/Indicators/PriceActionPatterns.mq4",
+        "MQL4/Indicators/SenalesCompraVenta.mq4"
     )
 }
 

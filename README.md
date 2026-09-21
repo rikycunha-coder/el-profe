@@ -28,6 +28,7 @@ auditar y cambiar en `MQL5/Include/GoldSignals/SignalEngine.mqh`.
 
 | Archivo | Para qué sirve |
 |---|---|
+| `MQL5/Indicators/SenalesCompraVenta.mq5` | **El directo**: panel que dice COMPRA, VENTA o ESPERAR, con entrada, SL y TP |
 | `MQL5/Indicators/GoldSignalsRealtime.mq5` | Indicador de tendencia: flechas, panel en vivo y alertas al cierre de cada vela |
 | `MQL5/Indicators/PriceActionPatterns.mq5` | Escáner de patrones de velas y figuras chartistas con señales |
 | `MQL5/Experts/GoldSignalsEA.mq5` | Robot: mismas señales + envío a Telegram/push y ejecución automática opcional |
@@ -37,6 +38,7 @@ auditar y cambiar en `MQL5/Include/GoldSignals/SignalEngine.mqh`.
 | `docs/ESTRATEGIA.md` | Cómo decide el sistema, filtros, puntuación y cómo ajustarlo |
 | `docs/INSTALACION.md` | Instalación paso a paso, alertas al móvil y Telegram |
 | `docs/MOVIL.md` | Cómo recibir y seguir las señales desde el móvil |
+| `docs/SENALES.md` | El indicador de compra/venta: cómo se decide la señal y sus ajustes |
 | `docs/PATRONES.md` | Qué detecta el escáner de patrones y cómo leerlo |
 | `docs/METATRADER4.md` | Versión MT4: instalación y diferencias con MT5 |
 | `MQL4/` | Los mismos tres programas portados a MQL4 |
@@ -74,7 +76,13 @@ Detalle completo, incluidas las notificaciones al móvil, en [`docs/INSTALACION.
 ¿Solo quieres las señales en el teléfono? Empieza por [`docs/MOVIL.md`](docs/MOVIL.md): la app
 de móvil no ejecuta MQL5, así que el PC o un VPS calcula y el móvil recibe.
 
-## Los dos indicadores
+## Los tres indicadores
+
+**`SenalesCompraVenta`** es el directo: un panel que dice **COMPRA**, **VENTA** o **ESPERAR**
+con el precio de entrada, el stop y el objetivo. Combina los otros dos análisis y solo avisa
+cuando no se contradicen. Empieza por este — [`docs/SENALES.md`](docs/SENALES.md).
+
+Los otros dos son para mirar el mercado, no solo para entrar:
 
 **`GoldSignalsRealtime`** sigue la tendencia: pocas señales, todas a favor de la dirección
 dominante. Es el que quieres si operas oro con una idea direccional clara.

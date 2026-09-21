@@ -58,7 +58,7 @@ foreach ($t in $terminales) {
     }
 
     # indicadores: fuente y compilado
-    foreach ($nombre in @("GoldSignalsRealtime","PriceActionPatterns")) {
+    foreach ($nombre in @("SenalesCompraVenta","GoldSignalsRealtime","PriceActionPatterns")) {
         $src = Join-Path $t.Datos ($t.Carpeta + "\Indicators\$nombre.$ext")
         $bin = Join-Path $t.Datos ($t.Carpeta + "\Indicators\$nombre.$comp")
         $log = Join-Path $t.Datos ($t.Carpeta + "\Indicators\$nombre.log")
