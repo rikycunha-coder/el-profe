@@ -1,7 +1,10 @@
-# Señales de oro (XAUUSD) en tiempo real para MetaTrader 5
+# Herramientas de trading para MetaTrader 5
 
-Indicador + robot (EA) en MQL5 que generan **señales de compra y venta de oro en tiempo real**,
-calculadas dentro de tu MetaTrader con el feed de precios de tu propio bróker.
+Indicadores y robot en MQL5 que generan **señales de compra y venta en tiempo real**, calculadas
+dentro de tu MetaTrader con el feed de precios de tu propio bróker.
+
+- **Señales de oro por tendencia** — medias, RSI, ADX y ATR sobre XAUUSD.
+- **Escáner de patrones y figuras** — velas japonesas, canales, triángulos, cuñas y dobles techos.
 
 ## Qué es y qué no es
 
@@ -24,19 +27,23 @@ auditar y cambiar en `MQL5/Include/GoldSignals/SignalEngine.mqh`.
 
 | Archivo | Para qué sirve |
 |---|---|
-| `MQL5/Indicators/GoldSignalsRealtime.mq5` | Indicador: flechas en el gráfico, panel en vivo y alertas al cierre de cada vela |
+| `MQL5/Indicators/GoldSignalsRealtime.mq5` | Indicador de tendencia: flechas, panel en vivo y alertas al cierre de cada vela |
+| `MQL5/Indicators/PriceActionPatterns.mq5` | Escáner de patrones de velas y figuras chartistas con señales |
 | `MQL5/Experts/GoldSignalsEA.mq5` | Robot: mismas señales + envío a Telegram/push y ejecución automática opcional |
-| `MQL5/Include/GoldSignals/SignalEngine.mqh` | Motor de señales compartido (toda la lógica está aquí) |
+| `MQL5/Include/GoldSignals/SignalEngine.mqh` | Motor de señales de tendencia |
+| `MQL5/Include/GoldSignals/Candles.mqh` | Biblioteca de 26 patrones de velas japonesas |
+| `MQL5/Include/GoldSignals/Structures.mqh` | Swings, figuras chartistas y señales de ruptura/rebote |
 | `docs/ESTRATEGIA.md` | Cómo decide el sistema, filtros, puntuación y cómo ajustarlo |
 | `docs/INSTALACION.md` | Instalación paso a paso, alertas al móvil y Telegram |
 | `docs/MOVIL.md` | Cómo recibir y seguir las señales desde el móvil |
+| `docs/PATRONES.md` | Qué detecta el escáner de patrones y cómo leerlo |
 
 ## Instalación rápida
 
 1. En MetaTrader 5: **Archivo → Abrir carpeta de datos**.
 2. Copia respetando las carpetas:
-   - `MQL5/Include/GoldSignals/SignalEngine.mqh` → `MQL5/Include/GoldSignals/`
-   - `MQL5/Indicators/GoldSignalsRealtime.mq5` → `MQL5/Indicators/`
+   - todo `MQL5/Include/GoldSignals/*.mqh` → `MQL5/Include/GoldSignals/`
+   - `MQL5/Indicators/*.mq5` → `MQL5/Indicators/`
    - `MQL5/Experts/GoldSignalsEA.mq5` → `MQL5/Experts/`
 3. Abre MetaEditor (F4), selecciona cada `.mq5` y pulsa **Compilar** (F7). Deben salir 0 errores.
 4. Vuelve al terminal, abre un gráfico de **XAUUSD en M5 o M15** y arrastra
@@ -47,7 +54,18 @@ Detalle completo, incluidas las notificaciones al móvil, en [`docs/INSTALACION.
 ¿Solo quieres las señales en el teléfono? Empieza por [`docs/MOVIL.md`](docs/MOVIL.md): la app
 de móvil no ejecuta MQL5, así que el PC o un VPS calcula y el móvil recibe.
 
-## Cómo funciona la señal, en una frase
+## Los dos indicadores
+
+**`GoldSignalsRealtime`** sigue la tendencia: pocas señales, todas a favor de la dirección
+dominante. Es el que quieres si operas oro con una idea direccional clara.
+
+**`PriceActionPatterns`** lee la estructura: marca patrones de velas, dibuja canales,
+triángulos, cuñas y dobles techos, y avisa cuando el precio los rompe o rebota en ellos.
+Detalle completo en [`docs/PATRONES.md`](docs/PATRONES.md).
+
+Puedes usar los dos en el mismo gráfico. Cuando coinciden en dirección, la señal pesa más.
+
+## Cómo funciona la señal de tendencia, en una frase
 
 Opera **a favor de la tendencia de H1** (precio contra su EMA 200), entra cuando las EMAs 21/50
 del gráfico operativo se cruzan o el precio hace un retroceso a la EMA 21 y rebota, y solo si
