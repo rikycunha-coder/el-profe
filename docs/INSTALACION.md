@@ -1,5 +1,33 @@
 # Instalación y puesta en marcha
 
+## Opción rápida: instalador automático (Windows)
+
+`tools/instalar.ps1` hace por ti lo que explica el resto de esta página: localiza tus terminales
+de MetaTrader, copia los archivos en la carpeta correcta de cada uno y **los compila llamando a
+MetaEditor por línea de comandos**, para que no tengas ni que abrir el editor.
+
+Abre PowerShell en la carpeta del repositorio y ejecuta:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\instalar.ps1
+```
+
+Detecta MT4 y MT5 a la vez, incluidas las instalaciones *portable*. Opciones:
+
+| Opción | Para qué |
+|---|---|
+| `-Origen C:\ruta\al\repositorio` | Usar archivos ya descargados en vez de bajarlos de GitHub |
+| `-Plataforma mt4` / `mt5` | Instalar solo en una plataforma |
+| `-SinCompilar` | Copiar sin compilar |
+
+Al terminar, reinicia MetaTrader (o clic derecho en el Navegador → *Actualizar*) y arrastra el
+indicador al gráfico.
+
+Si el script no encuentra MetaEditor, te lo dice y solo tienes que compilar a mano con F4 y F7.
+Si algo falla, sigue los pasos manuales de abajo: funcionan siempre.
+
+---
+
 ## 1. Copiar los archivos
 
 En MetaTrader 5: **Archivo → Abrir carpeta de datos**. Se abre el explorador en una ruta tipo

@@ -40,10 +40,18 @@ auditar y cambiar en `MQL5/Include/GoldSignals/SignalEngine.mqh`.
 | `docs/PATRONES.md` | Qué detecta el escáner de patrones y cómo leerlo |
 | `docs/METATRADER4.md` | Versión MT4: instalación y diferencias con MT5 |
 | `MQL4/` | Los mismos tres programas portados a MQL4 |
+| `tools/instalar.ps1` | Instalador para Windows: copia y compila en MT4 y MT5 |
 
 ## Instalación rápida
 
-¿Usas MetaTrader 4? Ve directo a [`docs/METATRADER4.md`](docs/METATRADER4.md).
+**En Windows, con un comando** (copia los archivos y los compila él solo, en MT4 y MT5):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\instalar.ps1
+```
+
+¿Prefieres hacerlo a mano? Sigue leyendo. ¿Usas MetaTrader 4? Ve directo a
+[`docs/METATRADER4.md`](docs/METATRADER4.md).
 
 1. En MetaTrader 5: **Archivo → Abrir carpeta de datos**.
 2. Copia respetando las carpetas:
