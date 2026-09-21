@@ -147,6 +147,7 @@ public:
                           const int depth,const int lookback,const int atr_period);
    void              Deinit(void);
    bool              LoadData(const int bars);
+   void              SetLookback(const int bars) { m_lookback = MathMax(60,bars); }
    void              Build(const int end_shift);
    bool              Signal(const int end_shift,const bool allow_breakout,
                             const bool allow_bounce,const bool allow_candle,

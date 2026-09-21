@@ -69,6 +69,10 @@ CPatternScanner g_scan;
 string          g_prefix   = "PAP_";
 datetime        g_last_bar = 0;
 datetime        g_last_alert_bar = 0;
+int             g_rates_total = 0;      // ultimo tamano de la serie
+bool            g_ready       = false;  // ya se ha podido calcular al menos una vez
+int             g_lookback    = 0;      // lookback realmente usado
+string          g_last_aviso  = "";
 PatternSignal   g_last_sig;
 bool            g_has_sig  = false;
 
@@ -113,11 +117,15 @@ int OnInit(void)
    if(!g_scan.Init(_Symbol,(ENUM_TIMEFRAMES)Period(),InpSwingDepth,InpLookback,InpAtrPeriod))
       return(INIT_FAILED);
 
+   g_lookback = InpLookback;
+   EventSetTimer(2);   // reintento por reloj: con el mercado cerrado no hay ticks
+
    return(INIT_SUCCEEDED);
   }
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
   {
+   EventKillTimer();
    g_scan.Deinit();
    ObjectsDeleteAll(0,g_prefix,-1,-1);
    Comment("");
@@ -371,34 +379,57 @@ bool SignalPasses(const PatternSignal &sig)
    return(true);
   }
 //+------------------------------------------------------------------+
-int OnCalculate(const int rates_total,
-                const int prev_calculated,
-                const datetime &time[],
-                const double &open[],
-                const double &high[],
-                const double &low[],
-                const double &close[],
-                const long &tick_volume[],
-                const long &volume[],
-                const int &spread[])
+//+------------------------------------------------------------------+
+//| Mensaje en pantalla cuando todavia no se puede calcular.          |
+//| Un grafico en blanco no explica nada: siempre hay que decir que   |
+//| esta pasando.                                                     |
+//+------------------------------------------------------------------+
+void Aviso(const string texto)
   {
+   Comment("PATRONES Y FIGURAS - "+_Symbol+" "+TfName(Period())+"\n"+texto);
+   if(texto!=g_last_aviso)
+     {
+      Print(texto);
+      g_last_aviso = texto;
+     }
+  }
+//+------------------------------------------------------------------+
+//| Todo el trabajo, llamado tanto desde OnCalculate como del reloj   |
+//+------------------------------------------------------------------+
+void Procesar(const int rates_total,const bool first)
+  {
+   //--- ajustar el analisis al historial que realmente hay
+   int lookback = MathMin(InpLookback,MathMax(60,rates_total/2));
+   if(lookback!=g_lookback)
+     {
+      g_lookback = lookback;
+      g_scan.SetLookback(lookback);
+     }
+
    if(rates_total<g_scan.MinBars())
-      return(0);
+     {
+      Aviso(StringFormat("Hacen falta %d velas y el grafico tiene %d.\nPulsa Inicio o arrastra el grafico a la izquierda para descargar mas historial.",
+                         g_scan.MinBars(),rates_total));
+      return;
+     }
 
    datetime bar_time = iTime(_Symbol,Period(),0);
    bool     new_bar  = (bar_time!=g_last_bar);
-   bool     first    = (prev_calculated<=0);
 
    //--- el trabajo pesado solo una vez por vela
-   if(!first && !new_bar)
+   if(!first && !new_bar && g_ready)
      {
       ShowPanel();
-      return(rates_total);
+      return;
      }
    g_last_bar = bar_time;
 
-   if(!g_scan.LoadData(InpLookback+InpMaxSignalBars+50))
-      return(prev_calculated);
+   if(!g_scan.LoadData(g_lookback+InpMaxSignalBars+50))
+     {
+      Aviso("Descargando el historial del simbolo...\nSi tarda, abre Herramientas > Centro de historiales y descarga este simbolo.");
+      return;
+     }
+   g_ready = true;
 
    if(first)
      {
@@ -449,6 +480,30 @@ int OnCalculate(const int rates_total,
 
    ShowPanel();
    ChartRedraw();
+  }
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+  {
+   g_rates_total = rates_total;
+   Procesar(rates_total,(prev_calculated<=0));
    return(rates_total);
+  }
+//+------------------------------------------------------------------+
+//| Con el mercado cerrado no llegan ticks y OnCalculate no se vuelve |
+//| a llamar: el reloj reintenta hasta que haya datos suficientes.    |
+//+------------------------------------------------------------------+
+void OnTimer(void)
+  {
+   if(g_rates_total>0 && !g_ready)
+      Procesar(g_rates_total,true);
   }
 //+------------------------------------------------------------------+

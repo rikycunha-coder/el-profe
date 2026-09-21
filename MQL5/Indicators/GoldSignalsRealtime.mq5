@@ -69,6 +69,9 @@ double            g_buy[];
 double            g_sell[];
 CGoldSignalEngine g_engine;
 datetime          g_last_alert_bar = 0;
+int               g_rates_total    = 0;
+bool              g_ready          = false;
+string            g_last_aviso     = "";
 GSResult          g_last_signal;
 bool              g_has_signal     = false;
 string            g_prefix         = "GSRT_";
@@ -124,11 +127,14 @@ int OnInit(void)
    if(!g_engine.Init(_Symbol,(ENUM_TIMEFRAMES)Period(),cfg))
       return(INIT_FAILED);
 
+   EventSetTimer(2);   // reintento por reloj: con el mercado cerrado no hay ticks
+
    return(INIT_SUCCEEDED);
   }
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
   {
+   EventKillTimer();
    g_engine.Deinit();
    ObjectsDeleteAll(0,g_prefix);
    Comment("");
@@ -252,23 +258,36 @@ void ShowPanel(void)
    Comment(txt);
   }
 //+------------------------------------------------------------------+
-int OnCalculate(const int rates_total,
-                const int prev_calculated,
-                const datetime &time[],
-                const double &open[],
-                const double &high[],
-                const double &low[],
-                const double &close[],
-                const long &tick_volume[],
-                const long &volume[],
-                const int &spread[])
+//+------------------------------------------------------------------+
+//| Mensaje en pantalla cuando todavia no se puede calcular           |
+//+------------------------------------------------------------------+
+void Aviso(const string texto)
   {
+   Comment("SENALES ORO - "+_Symbol+" "+EnumToString((ENUM_TIMEFRAMES)Period())+"\n"+texto);
+   if(texto!=g_last_aviso)
+     {
+      Print(texto);
+      g_last_aviso = texto;
+     }
+  }
+//+------------------------------------------------------------------+
+void Procesar(const int rates_total,const int prev_calculated)
+  {
+
    if(rates_total < g_engine.MinBars()+5)
-      return(0);
+     {
+      Aviso(StringFormat("Hacen falta %d velas y el grafico tiene %d.\nPulsa Inicio o arrastra el grafico a la izquierda para descargar mas historial.",
+                         g_engine.MinBars()+5,rates_total));
+      return;
+     }
 
    int scan = MathMin(InpBarsToScan,rates_total-2);
    if(!g_engine.Refresh(scan+5))
-      return(prev_calculated);
+     {
+      Aviso("Descargando el historial del simbolo...\nSi tarda, abre Herramientas > Centro de historiales y descarga este simbolo.");
+      return;
+     }
+   g_ready = true;
 
    int limit;
    if(prev_calculated<=0)
@@ -310,6 +329,30 @@ int OnCalculate(const int rates_total,
    g_sell[0] = EMPTY_VALUE;
 
    ShowPanel();
+   return;
+  }
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+  {
+   g_rates_total = rates_total;
+   Procesar(rates_total,prev_calculated);
    return(rates_total);
+  }
+//+------------------------------------------------------------------+
+//| Con el mercado cerrado no llegan ticks: el reloj reintenta        |
+//+------------------------------------------------------------------+
+void OnTimer(void)
+  {
+   if(g_rates_total>0 && !g_ready)
+      Procesar(g_rates_total,0);
   }
 //+------------------------------------------------------------------+
