@@ -1,0 +1,59 @@
+name: App Despiece de Hierro
+
+on:
+  push:
+    paths:
+      - 'DespieceHierro/**'
+      - '.github/workflows/despiece-hierro.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: despiece-hierro-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: Compilar APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: DespieceHierro
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Pruebas del motor de cálculo
+        run: ./gradlew --no-daemon :core:test
+
+      - name: Compilar APK
+        run: ./gradlew --no-daemon :app:assembleRelease
+
+      - name: Preparar APK
+        run: cp app/build/outputs/apk/release/app-release.apk DespieceHierro.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DespieceHierro-apk
+          path: DespieceHierro/DespieceHierro.apk
+
+      # Deja siempre la última compilación en una misma dirección de descarga:
+      # https://github.com/<usuario>/<repo>/releases/download/despiece-hierro-latest/DespieceHierro.apk
+      - name: Publicar APK en Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete despiece-hierro-latest --yes --cleanup-tag || true
+          gh release create despiece-hierro-latest DespieceHierro.apk \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "Despiece de Hierro · última compilación" \
+            --notes "APK de la app Android de despiece de hierro (compilación ${GITHUB_RUN_NUMBER}, rama ${GITHUB_REF_NAME}, commit ${GITHUB_SHA::7}). Descarga DespieceHierro.apk desde el móvil e instálalo; si Android lo pide, permite instalar apps de origen desconocido para el navegador."
