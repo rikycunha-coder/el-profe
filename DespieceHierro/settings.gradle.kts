@@ -16,4 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "DespieceHierro"
 
-include(":app", ":core")
+include(":app")

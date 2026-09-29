@@ -31,8 +31,8 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Pruebas del motor de cálculo
-        run: ./gradlew --no-daemon :core:test
+      - name: Pruebas del motor de cálculo y del Excel
+        run: node pruebas/web.test.mjs
 
       - name: Compilar APK
         run: ./gradlew --no-daemon :app:assembleRelease
