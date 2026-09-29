@@ -64,12 +64,27 @@ class ObraTest {
     }
 
     @Test
-    fun csvIncluyeFilasYTotales() {
+    fun excelTieneHojasYFormulas() {
         val r = ResumenObra.de(Almacen.obraDeEjemplo(0L))
-        val csv = ExportadorCsv.generar(r)
-        assertTrue(csv.contains("Elemento;Tipo;Elementos iguales;Marca"))
-        assertTrue(csv.contains("TOTAL;;;" + Formato.plano(r.peso)))
-        assertTrue(csv.lines().any { it.startsWith("Pilar P-1;Pilar;4;") })
+        val bytes = ExportadorExcel.generar(r, "Fecha: hoy")
+        val partes = mutableMapOf<String, String>()
+        java.util.zip.ZipInputStream(bytes.inputStream()).use { zip ->
+            generateSequence { zip.nextEntry }.forEach { partes[it.name] = zip.readBytes().toString(Charsets.UTF_8) }
+        }
+        assertTrue("[Content_Types].xml" in partes)
+        assertTrue(partes.getValue("xl/workbook.xml").contains("name=\"Plan de corte\""))
+        assertEquals(3, partes.keys.count { it.startsWith("xl/worksheets/sheet") })
+        val planilla = partes.getValue("xl/worksheets/sheet1.xml")
+        assertTrue(planilla.contains("<f>L6*M6</f>"))
+        assertTrue(partes.getValue("xl/sharedStrings.xml").contains("Pilar P-1"))
+    }
+
+    @Test
+    fun columnasDeExcel() {
+        assertEquals("A", LibroExcel.columna(0))
+        assertEquals("Z", LibroExcel.columna(25))
+        assertEquals("AA", LibroExcel.columna(26))
+        assertEquals("AZ", LibroExcel.columna(51))
     }
 
     @Test

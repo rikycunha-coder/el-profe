@@ -15,12 +15,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -30,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,11 +56,19 @@ fun PantallaResumen(obra: Obra, vm: AppViewModel) {
         value = withContext(Dispatchers.Default) { ResumenObra.de(obra) }
     }
 
+    var exportar by remember { mutableStateOf(false) }
+    ExportacionObra(obra, visible = exportar, onCerrar = { exportar = false })
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Resumen · ${obra.nombre}", maxLines = 1) },
                 navigationIcon = { BotonVolver { vm.volver() } },
+                actions = {
+                    IconButton(onClick = { exportar = true }) {
+                        Icon(Icons.Filled.Share, contentDescription = "Exportar a Excel o PDF")
+                    }
+                },
             )
         },
     ) { padding ->

@@ -12,8 +12,7 @@ import com.elprofe.despiece.core.Croquis
 import com.elprofe.despiece.core.DespieceElemento
 import com.elprofe.despiece.core.Formato
 import com.elprofe.despiece.core.ResumenObra
-import java.io.File
-import java.io.FileOutputStream
+import java.io.OutputStream
 import java.text.DateFormat
 import java.util.Date
 import kotlin.math.min
@@ -21,7 +20,7 @@ import kotlin.math.min
 /** Planilla de despiece en PDF (A4 vertical) con croquis de cada barra. */
 object ExportadorPdf {
 
-    fun crear(r: ResumenObra, archivo: File) {
+    fun crear(r: ResumenObra, salida: OutputStream) {
         val doc = PdfDocument()
         try {
             val hoja = Hoja(doc, r.obra.nombre)
@@ -30,7 +29,7 @@ object ExportadorPdf {
             hoja.resumen(r)
             hoja.cortes(r)
             hoja.terminar()
-            FileOutputStream(archivo).use { doc.writeTo(it) }
+            doc.writeTo(salida)
         } finally {
             doc.close()
         }

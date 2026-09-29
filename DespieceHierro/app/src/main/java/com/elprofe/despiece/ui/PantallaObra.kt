@@ -32,8 +32,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -44,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,37 +59,23 @@ import com.elprofe.despiece.core.Elemento
 import com.elprofe.despiece.core.Formato
 import com.elprofe.despiece.core.Obra
 import com.elprofe.despiece.core.TipoElemento
-import com.elprofe.despiece.exportar.Compartir
-import kotlinx.coroutines.launch
 
 @Composable
 fun PantallaObra(obra: Obra, vm: AppViewModel) {
     val contexto = LocalContext.current
-    val alcance = rememberCoroutineScope()
     val despieces = remember(obra) {
         val calc = Calculadora(obra.ajustes)
         obra.elementos.map { calc.calcular(it) }
     }
     var elegirTipo by remember { mutableStateOf(false) }
     var eliminar by remember { mutableStateOf<Elemento?>(null) }
-    var menuExportar by remember { mutableStateOf(false) }
-    var exportando by remember { mutableStateOf(false) }
+    var exportar by remember { mutableStateOf(false) }
 
-    fun exportar(accion: suspend () -> Unit) {
-        menuExportar = false
+    fun abrirExportacion() {
         if (obra.elementos.isEmpty()) {
             Toast.makeText(contexto, "La obra no tiene elementos todavía", Toast.LENGTH_SHORT).show()
-            return
-        }
-        exportando = true
-        alcance.launch {
-            try {
-                accion()
-            } catch (e: Exception) {
-                Toast.makeText(contexto, "No se pudo exportar: ${e.message}", Toast.LENGTH_LONG).show()
-            } finally {
-                exportando = false
-            }
+        } else {
+            exportar = true
         }
     }
 
@@ -103,20 +88,8 @@ fun PantallaObra(obra: Obra, vm: AppViewModel) {
                     IconButton(onClick = { vm.ir(Pantalla.AjustesObra(obra.id)) }) {
                         Icon(Icons.Filled.Settings, contentDescription = "Ajustes de la obra")
                     }
-                    Box {
-                        IconButton(onClick = { menuExportar = true }) {
-                            Icon(Icons.Filled.Share, contentDescription = "Exportar")
-                        }
-                        DropdownMenu(expanded = menuExportar, onDismissRequest = { menuExportar = false }) {
-                            DropdownMenuItem(
-                                text = { Text("Planilla PDF") },
-                                onClick = { exportar { Compartir.pdf(contexto, obra) } },
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Tabla CSV (Excel)") },
-                                onClick = { exportar { Compartir.csv(contexto, obra) } },
-                            )
-                        }
+                    IconButton(onClick = { abrirExportacion() }) {
+                        Icon(Icons.Filled.Share, contentDescription = "Exportar a Excel o PDF")
                     }
                 },
             )
@@ -130,14 +103,17 @@ fun PantallaObra(obra: Obra, vm: AppViewModel) {
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            if (exportando) LinearProgressIndicator(Modifier.fillMaxWidth())
             LazyColumn(
                 Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 96.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 item {
-                    TarjetaTotal(despieces) { vm.ir(Pantalla.Resumen(obra.id)) }
+                    TarjetaTotal(
+                        despieces,
+                        onResumen = { vm.ir(Pantalla.Resumen(obra.id)) },
+                        onExportar = { abrirExportacion() },
+                    )
                 }
                 if (obra.elementos.isEmpty()) {
                     item {
@@ -156,6 +132,7 @@ fun PantallaObra(obra: Obra, vm: AppViewModel) {
         }
     }
 
+    ExportacionObra(obra, visible = exportar, onCerrar = { exportar = false })
     if (elegirTipo) {
         DialogoTipo(
             onElegir = { tipo ->
@@ -181,7 +158,7 @@ fun PantallaObra(obra: Obra, vm: AppViewModel) {
 }
 
 @Composable
-private fun TarjetaTotal(despieces: List<DespieceElemento>, onResumen: () -> Unit) {
+private fun TarjetaTotal(despieces: List<DespieceElemento>, onResumen: () -> Unit, onExportar: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         modifier = Modifier.fillMaxWidth(),
@@ -196,8 +173,13 @@ private fun TarjetaTotal(despieces: List<DespieceElemento>, onResumen: () -> Uni
             val barras = despieces.sumOf { it.barrasPorElemento * it.veces }
             Text("$barras barras cortadas · ${despieces.size} elementos", style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.size(4.dp))
-            Button(onClick = onResumen, enabled = despieces.isNotEmpty()) {
+            Button(onClick = onResumen, enabled = despieces.isNotEmpty(), modifier = Modifier.fillMaxWidth()) {
                 Text("Resumen por diámetro y plan de corte")
+            }
+            OutlinedButton(onClick = onExportar, enabled = despieces.isNotEmpty(), modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Filled.Share, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Exportar a Excel o PDF")
             }
         }
     }

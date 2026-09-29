@@ -28,8 +28,12 @@ perder las obras.
 - **Barras adicionales** en cualquier elemento: suples, bastones, esquineros o estribos especiales.
 - **Planilla** con marca, forma dibujada con sus cotas, Ø, medidas, largo de corte, cantidad y peso.
 - **Resumen por diámetro** y **plan de corte** en barras comerciales de 12 m con el desperdicio.
-- **Exportar** la planilla a **PDF** (con croquis) o **CSV** para Excel, y compartirla por
-  WhatsApp, correo, Drive…
+- **Exportar a Excel (.xlsx) y PDF**: botón «Exportar a Excel o PDF» en cada obra (o el icono de
+  compartir). Cada formato se puede **guardar en el teléfono** (Descargas, Drive…) o **compartir**
+  por WhatsApp, correo, etc.
+  - Excel: hojas «Planilla», «Resumen» y «Plan de corte»; cantidades totales, largos y pesos son
+    fórmulas, así que se recalculan si cambias un dato.
+  - PDF: planilla para imprimir con el dibujo acotado de cada barra, resumen y plan de corte.
 
 ## Criterios de cálculo
 
@@ -54,7 +58,7 @@ Estructural / EHE, CIRSOC 201, NSR-10, E.060…) y con los planos del calculista
 
 | Carpeta | Contenido |
 |---|---|
-| `core/` | Motor de cálculo en Kotlin puro: modelo, reglas de despiece, plan de corte, CSV y pruebas |
+| `core/` | Motor de cálculo en Kotlin puro: modelo, reglas de despiece, plan de corte, Excel y pruebas |
 | `app/` | App Android con Jetpack Compose: pantallas, guardado y exportación a PDF |
 
 ## Compilar
