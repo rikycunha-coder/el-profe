@@ -57,11 +57,11 @@ $puestos = 0
 $saltados = 0
 
 foreach ($rel in $Archivos) {
-    $destino = Join-Path $Destino ($rel -replace "/", "\")
-    $carpeta = Split-Path $destino -Parent
+    $rutaArchivo = Join-Path $Destino ($rel -replace "/", "\")
+    $carpeta = Split-Path $rutaArchivo -Parent
     if (-not (Test-Path $carpeta)) { New-Item -ItemType Directory -Path $carpeta -Force | Out-Null }
 
-    if ((Test-Path $destino) -and (-not $Sobrescribir)) {
+    if ((Test-Path $rutaArchivo) -and (-not $Sobrescribir)) {
         L "  ya existe, se deja como esta: $rel" "Yellow"
         $saltados++
         continue
@@ -73,10 +73,10 @@ foreach ($rel in $Archivos) {
             L "  no esta en el origen: $rel" "Yellow"
             continue
         }
-        Copy-Item $src $destino -Force
+        Copy-Item $src $rutaArchivo -Force
     } else {
         try {
-            Invoke-WebRequest -Uri "$Base/$rel" -OutFile $destino -UseBasicParsing
+            Invoke-WebRequest -Uri "$Base/$rel" -OutFile $rutaArchivo -UseBasicParsing
         } catch {
             L "  no se pudo descargar: $rel" "Red"
             continue
