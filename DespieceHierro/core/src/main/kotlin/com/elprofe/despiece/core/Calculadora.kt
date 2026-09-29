@@ -10,7 +10,8 @@ import kotlin.math.ceil
  *  - Las medidas de las barras son exteriores y se redondean al centímetro.
  *  - El recubrimiento se descuenta en cada extremo y en cada cara.
  *  - Una barra más larga que la barra comercial se divide en piezas con traslapo.
- *  - No se descuentan alargamientos por doblado (resultado ligeramente conservador).
+ *  - El alargamiento por doblado solo se descuenta si Ajustes.descontarDoblado (2Ø por doblez a 90°);
+ *    si no, el resultado es ligeramente conservador.
  */
 class Calculadora(private val ajustes: Ajustes) {
 
@@ -245,18 +246,21 @@ class Calculadora(private val ajustes: Ajustes) {
 
     private fun conPatas(desc: String, d: Int, cantidad: Int, pataIni: Int, recto: Int, pataFin: Int): Barra {
         val largo = pataIni + recto + pataFin
+        val porDoblez = ajustes.descuentoPorDoblez(d)
         return when {
             pataIni > 0 && pataFin > 0 ->
-                Barra(0, desc, d, Forma.U, listOf(pataIni, recto, pataFin), 0, largo, cantidad)
+                Barra(0, desc, d, Forma.U, listOf(pataIni, recto, pataFin), 0, largo - 2 * porDoblez, cantidad, 2 * porDoblez)
             pataIni > 0 || pataFin > 0 ->
-                Barra(0, desc, d, Forma.L, listOf(maxOf(pataIni, pataFin), recto), 0, largo, cantidad)
+                Barra(0, desc, d, Forma.L, listOf(maxOf(pataIni, pataFin), recto), 0, largo - porDoblez, cantidad, porDoblez)
             else -> Barra(0, desc, d, Forma.RECTA, listOf(recto), 0, largo, cantidad)
         }
     }
 
+    /** Estribo cerrado: perímetro exterior, 2 ganchos y, si se pide, 3 dobleces a 90° descontados. */
     private fun estribo(p: Planilla, desc: String, d: Int, cantidad: Int, a: Int, h: Int) {
         val g = ajustes.gancho(d)
-        p.agregar(Barra(0, desc, d, Forma.ESTRIBO, listOf(a, h), g, 2 * a + 2 * h + 2 * g, cantidad))
+        val descuento = 3 * ajustes.descuentoPorDoblez(d)
+        p.agregar(Barra(0, desc, d, Forma.ESTRIBO, listOf(a, h), g, 2 * a + 2 * h + 2 * g - descuento, cantidad, descuento))
     }
 
     private fun traba(p: Planilla, desc: String, d: Int, cantidad: Int, a: Int) {

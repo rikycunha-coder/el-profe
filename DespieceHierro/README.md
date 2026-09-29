@@ -37,22 +37,43 @@ perder las obras.
 
 ## Criterios de cálculo
 
-| Concepto | Criterio por defecto |
+Cada obra tiene una **norma de referencia** (Ajustes, icono de engranaje). Las obras nuevas
+empiezan con ACI 318:
+
+| Concepto | ACI 318 | Eurocódigo 2 |
+|---|---|---|
+| Pata automática (gancho/patilla a 90°) | 12Ø | 10Ø |
+| Ganchos de estribos y trabas (135°) | 6Ø, mín. 7,5 cm | 10Ø, mín. 7,5 cm |
+| Traslapo | 52Ø hasta Ø20 · 65Ø desde Ø22 (clase B, fy 420 MPa, f'c 25 MPa) | 60Ø (B500S, C25/30, α6 = 1,5) |
+| Material por defecto | Grado 60 (fy 420 MPa) | B500S |
+
+Si cambias a mano alguno de esos valores, la obra pasa a «criterio propio».
+
+| Concepto | Criterio |
 |---|---|
-| Medidas | Exteriores, redondeadas al cm; no se descuenta el alargamiento por doblado |
+| Medidas | Exteriores, redondeadas al cm |
+| Doblado | Opcional: descuenta 2Ø por cada doblez a 90° (patas y 3 esquinas de estribos). Apagado = conservador |
 | Recubrimiento | Se descuenta en cada extremo y en cada cara |
 | Nº de barras | `huecos para no superar la separación + 1` |
 | Peso | π/4 · Ø² · 7.850 kg/m³ (Ø8 0,395 · Ø10 0,617 · Ø12 0,888 · Ø16 1,578 kg/m) |
-| Pata automática | 12Ø (el campo de pata vacío = automática; 0 = sin pata) |
-| Ganchos de estribos y trabas | 10Ø cada uno, mínimo 7,5 cm |
 | Estribo | 2·(b − 2r) + 2·(h − 2r) + 2 ganchos |
 | Zuncho circular | π·(D − 2r) + 2 ganchos |
-| Traslapo | 50Ø: en esperas de muros y pilares y al cortar barras de más de 12 m |
+| Barra comercial | 6 o 12 m (u otro largo); las barras más largas se cortan en piezas con traslapo |
 | Plan de corte | Mejor ajuste decreciente: primero las piezas largas, cada una en la barra que deja menos sobrante |
+| Margen de seguridad | Opcional (p. ej. 3–5 %). Solo se suma a la lista de compra y se informa aparte del neto |
 
-Todos estos valores se cambian por obra en **Ajustes** (icono de engranaje). Son orientativos:
-comprueba anclajes, traslapos y ganchos con la norma que aplique (ACI 318 / NCh 430, Código
-Estructural / EHE, CIRSOC 201, NSR-10, E.060…) y con los planos del calculista.
+Son valores orientativos para acero y hormigón habituales: comprueba anclajes, traslapos y
+ganchos con los planos del calculista.
+
+## Informes (Excel y PDF)
+
+1. **Resumen del proyecto**: tipo de estructura, material, norma, barra comercial, desperdicio
+   total estimado (% y metros sobrantes) y margen de seguridad.
+2. **Tabla de despiece (corte neto)**: elemento, Ø, cantidad, largo unitario y total, peso, forma y
+   dobleces.
+3. **Plan de corte** por diámetro: cuántas barras comerciales y qué piezas salen de cada una, con su
+   sobrante.
+4. **Lista de compra consolidada**: barras comerciales y kg por diámetro; con margen, en columnas aparte.
 
 ## Estructura
 

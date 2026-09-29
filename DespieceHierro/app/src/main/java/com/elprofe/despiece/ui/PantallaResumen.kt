@@ -84,6 +84,8 @@ fun PantallaResumen(obra: Obra, vm: AppViewModel) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item { TarjetaTotales(r) }
+                item { ResumenProyecto(r) }
+                item { ListaDeCompra(r) }
                 item { TablaDiametros(r) }
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -114,8 +116,74 @@ private fun TarjetaTotales(r: ResumenObra) {
                 "A comprar: ${r.barrasComerciales} barras · ${Formato.kg(r.pesoComprado)} kg",
                 style = MaterialTheme.typography.bodyLarge,
             )
-            Text("Desperdicio de corte: ${Formato.porcentaje(r.desperdicio)}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "Desperdicio de corte: ${Formato.porcentaje(r.desperdicio)} (${Formato.num(r.sobrante)} m sobrantes)",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            if (r.margen > 0) {
+                Text(
+                    "Con margen de ${Formato.porcentaje(r.margen)}: ${r.barrasConMargen} barras · ${Formato.kg(r.pesoConMargen)} kg",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun ResumenProyecto(r: ResumenObra) {
+    val aj = r.obra.ajustes
+    Seccion("Resumen del proyecto") {
+        val pesos = listOf(1.1f, 1.6f)
+        listOf(
+            "Tipo de estructura" to r.tipoEstructura,
+            "Material principal" to aj.acero,
+            "Norma" to aj.norma.etiqueta,
+            "Barra comercial" to "${Formato.editable(aj.largoComercial)} m",
+            "Desperdicio estimado" to "${Formato.porcentaje(r.desperdicio)} · ${Formato.num(r.sobrante)} m",
+            "Margen de seguridad" to if (r.margen > 0) "${Formato.porcentaje(r.margen)} (aparte del neto)" else "Sin margen",
+            "Doblado" to if (aj.descontarDoblado) "Descontado (2Ø por doblez)" else "Sin descontar",
+        ).forEach { (etiqueta, valor) ->
+            Row(Modifier.fillMaxWidth()) {
+                Text(etiqueta, Modifier.weight(pesos[0]), style = MaterialTheme.typography.labelLarge)
+                Text(valor, Modifier.weight(pesos[1]), style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ListaDeCompra(r: ResumenObra) {
+    val lc = Formato.editable(r.obra.ajustes.largoComercial)
+    val conMargen = r.margen > 0
+    Seccion("Lista de compra consolidada") {
+        r.porDiametro.forEach { rd ->
+            Text(
+                "Ø${rd.diametro}: ${rd.barrasComerciales} barras de $lc m · ${Formato.kg(rd.pesoComprado)} kg",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+            )
+            if (conMargen) {
+                Ayuda(
+                    "Con margen ${Formato.porcentaje(r.margen)}: ${rd.barrasConMargen(r.margen)} barras · " +
+                        "${Formato.kg(rd.pesoConMargen(r.margen))} kg",
+                )
+            }
+        }
+        HorizontalDivider()
+        Text(
+            "Total neto de compra: ${r.barrasComerciales} barras · ${Formato.kg(r.pesoComprado)} kg",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        if (conMargen) {
+            Text(
+                "Total con margen ${Formato.porcentaje(r.margen)}: ${r.barrasConMargen} barras · ${Formato.kg(r.pesoConMargen)} kg",
+                style = MaterialTheme.typography.titleSmall,
+            )
+        }
+        Ayuda("Según el plan de corte. El acero neto colocado es ${Formato.kg(r.peso)} kg.")
     }
 }
 

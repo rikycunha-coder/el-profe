@@ -13,20 +13,64 @@ import kotlin.math.max
  * Un campo de pata con valor null significa "automática" (Ajustes.pataDiametros × Ø).
  */
 
+/** Norma de referencia: fija los largos de pata, gancho y traslapo por defecto. */
+enum class Norma(
+    val etiqueta: String,
+    val detalle: String,
+    val pataDiametros: Double,
+    val ganchoDiametros: Double,
+    val empalmeDiametros: Double,
+    val empalmeGruesoDiametros: Double,
+    val acero: String,
+) {
+    ACI_318(
+        "ACI 318",
+        "Pata de gancho a 90°: 12Ø. Ganchos de estribos y trabas a 135°: 6Ø (mín. 7,5 cm). " +
+            "Traslapo clase B = 1,3·ld para acero fy 420 MPa y f'c 25 MPa: 52Ø hasta Ø20, 65Ø desde Ø22. " +
+            "Base de NCh 430, NSR-10, E.060, CIRSOC 201 y NTC.",
+        12.0, 6.0, 52.0, 65.0, "Acero corrugado grado 60 (fy 420 MPa)",
+    ),
+    EUROCODIGO_2(
+        "Eurocódigo 2",
+        "Patilla a 90°: 10Ø. Ganchos de cercos a 135°: 10Ø (mín. 7,5 cm). " +
+            "Solape l0 = 1,5·lb,rqd para B500S, C25/30 y buena adherencia: 60Ø. " +
+            "Base del Código Estructural y de la EHE-08.",
+        10.0, 10.0, 60.0, 60.0, "Acero corrugado B500S",
+    ),
+    PROPIA(
+        "Criterio propio",
+        "Valores definidos a mano en esta obra.",
+        12.0, 10.0, 50.0, 50.0, "Acero corrugado",
+    ),
+}
+
 @Serializable
 data class Ajustes(
+    /** Norma con la que se fijaron los valores (PROPIA si se cambiaron a mano). */
+    val norma: Norma = Norma.PROPIA,
+    /** Material principal, p. ej. "B500S" o "A630-420H". */
+    val acero: String = Norma.PROPIA.acero,
     /** Largo de la barra comercial, en metros. */
     val largoComercial: Double = 12.0,
-    /** Largo de traslapo (empalme por solape) en número de diámetros. */
+    /** Largo de traslapo (empalme por solape) en número de diámetros, para Ø ≤ 20 mm. */
     val empalmeDiametros: Double = 50.0,
+    /** Largo de traslapo en número de diámetros para Ø ≥ 22 mm (null = el mismo que para Ø ≤ 20). */
+    val empalmeGruesoDiametros: Double? = null,
     /** Largo de la pata automática en número de diámetros. */
     val pataDiametros: Double = 12.0,
     /** Largo de cada gancho de estribos y trabas en número de diámetros (mínimo 7,5 cm). */
     val ganchoDiametros: Double = 10.0,
+    /** Resta el alargamiento por doblado: 2Ø por cada doblez a 90°. */
+    val descontarDoblado: Boolean = false,
+    /** Margen de desperdicio adicional para la compra, en %. Se informa aparte del neto. */
+    val margenDesperdicio: Double = 0.0,
 ) {
     val largoComercialCm: Int get() = max(100, redondear(largoComercial * 100))
 
-    fun empalme(diametro: Int): Int = redondearArriba(empalmeDiametros * diametro / 10.0)
+    fun empalme(diametro: Int): Int {
+        val factor = if (diametro >= DIAMETRO_GRUESO) empalmeGruesoDiametros ?: empalmeDiametros else empalmeDiametros
+        return redondearArriba(factor * diametro / 10.0)
+    }
 
     fun pataAutomatica(diametro: Int): Int = redondearArriba(pataDiametros * diametro / 10.0)
 
@@ -36,16 +80,32 @@ data class Ajustes(
     /** Pata en cm: null = automática, 0 = sin pata. */
     fun pata(valor: Double?, diametro: Int): Int = valor?.let { redondear(it) } ?: pataAutomatica(diametro)
 
+    /** Centímetros que se restan por cada doblez a 90° (0 si no se descuenta el doblado). */
+    fun descuentoPorDoblez(diametro: Int): Int = if (descontarDoblado) redondear(2.0 * diametro / 10.0) else 0
+
+    /** Aplica los valores de una norma, conservando el largo comercial, el margen y el descuento por doblado. */
+    fun conNorma(n: Norma): Ajustes = copy(
+        norma = n,
+        acero = if (acero.isBlank() || Norma.entries.any { it.acero == acero }) n.acero else acero,
+        pataDiametros = n.pataDiametros,
+        ganchoDiametros = n.ganchoDiametros,
+        empalmeDiametros = n.empalmeDiametros,
+        empalmeGruesoDiametros = n.empalmeGruesoDiametros,
+    )
+
     companion object {
         const val GANCHO_MINIMO_CM = 7.5
+        const val DIAMETRO_GRUESO = 22
+
+        fun de(n: Norma): Ajustes = Ajustes().conNorma(n)
     }
 }
 
-enum class TipoElemento(val etiqueta: String, val inicial: String, val descripcion: String) {
-    LOSA("Losa", "L", "Mallas inferior y superior en dos direcciones"),
-    VIGA("Viga", "V", "Barras inferiores, superiores, de piel y estribos"),
-    MURO("Muro", "M", "Barras verticales, horizontales y trabas"),
-    PILAR("Pilar", "P", "Barras longitudinales, estribos o zunchos");
+enum class TipoElemento(val etiqueta: String, val plural: String, val inicial: String, val descripcion: String) {
+    LOSA("Losa", "losas", "L", "Mallas inferior y superior en dos direcciones"),
+    VIGA("Viga", "vigas", "V", "Barras inferiores, superiores, de piel y estribos"),
+    MURO("Muro", "muros", "M", "Barras verticales, horizontales y trabas"),
+    PILAR("Pilar", "pilares", "P", "Barras longitudinales, piel, estribos o zunchos");
 
     fun crear(nombre: String): Elemento = when (this) {
         LOSA -> Losa(nombre = nombre)

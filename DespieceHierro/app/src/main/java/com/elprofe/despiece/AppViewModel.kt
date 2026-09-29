@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.elprofe.despiece.core.Ajustes
 import com.elprofe.despiece.core.Almacen
 import com.elprofe.despiece.core.Elemento
+import com.elprofe.despiece.core.Norma
 import com.elprofe.despiece.core.Obra
 import com.elprofe.despiece.core.TipoElemento
 import com.elprofe.despiece.core.con
@@ -78,7 +79,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     // ------------------------------------------------------------ Obras
 
     fun crearObra(nombre: String): String {
-        val obra = Obra(nombre = nombre.trim().ifEmpty { "Obra nueva" }, creada = System.currentTimeMillis())
+        val obra = Obra(
+            nombre = nombre.trim().ifEmpty { "Obra nueva" },
+            creada = System.currentTimeMillis(),
+            ajustes = Ajustes.de(Norma.ACI_318),
+        )
         cambiar { listOf(obra) + it }
         return obra.id
     }

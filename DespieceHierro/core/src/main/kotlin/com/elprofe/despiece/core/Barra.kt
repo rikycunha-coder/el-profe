@@ -33,6 +33,8 @@ data class Barra(
     val longitud: Int,
     /** Barras por elemento. */
     val cantidad: Int,
+    /** cm restados al largo de corte por el alargamiento en los dobleces. */
+    val descuento: Int = 0,
 ) {
     val kgPorMetro: Double get() = Acero.kgPorMetro(diametro)
 
@@ -44,6 +46,20 @@ data class Barra(
 
     /** Metros de todas las barras de esta fila en un elemento. */
     val largoTotal: Double get() = longitud * cantidad / 100.0
+
+    /** Dobleces y ganchos de la barra, para la columna de observaciones. */
+    fun dobleces(): String {
+        val texto = when (forma) {
+            Forma.RECTA -> "Recta, sin dobleces"
+            Forma.L -> "1 doblez a 90°: pata de ${tramos[0]} cm"
+            Forma.U -> if (tramos[0] == tramos[2]) "2 dobleces a 90°: patas de ${tramos[0]} cm"
+            else "2 dobleces a 90°: patas de ${tramos[0]} y ${tramos[2]} cm"
+            Forma.ESTRIBO -> "Estribo cerrado: 3 dobleces a 90° y 2 ganchos a 135° de $gancho cm"
+            Forma.TRABA -> "2 ganchos a 135° de $gancho cm"
+            Forma.CIRCULO -> "Zuncho circular con 2 ganchos a 135° de $gancho cm"
+        }
+        return if (descuento > 0) "$texto (descontado $descuento cm por doblado)" else texto
+    }
 
     fun medidas(): String = when (forma) {
         Forma.RECTA -> "${tramos[0]}"

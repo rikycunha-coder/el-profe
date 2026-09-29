@@ -168,6 +168,53 @@ class CalculadoraTest {
     }
 
     @Test
+    fun normaAciFijaPatasGanchosYTraslapos() {
+        val aci = Ajustes.de(Norma.ACI_318)
+        assertEquals(15, aci.pataAutomatica(12)) // 12 × 1,2 = 14,4
+        assertEquals(8, aci.gancho(8)) // 6 × 0,8 = 4,8 → mínimo 7,5 cm
+        assertEquals(63, aci.empalme(12)) // 52 × 1,2 = 62,4
+        assertEquals(163, aci.empalme(25)) // 65 × 2,5 = 162,5
+        val ec2 = Ajustes.de(Norma.EUROCODIGO_2)
+        assertEquals(72, ec2.empalme(12))
+        assertEquals("Acero corrugado B500S", ec2.acero)
+        // Cambiar de norma respeta un acero escrito a mano.
+        assertEquals("A630-420H", aci.copy(acero = "A630-420H").conNorma(Norma.EUROCODIGO_2).acero)
+    }
+
+    @Test
+    fun obrasAntiguasConservanSusValores() {
+        val aj = Ajustes(empalmeDiametros = 40.0)
+        assertEquals(Norma.PROPIA, aj.norma)
+        assertEquals(100, aj.empalme(25)) // sin traslapo específico para barras gruesas
+    }
+
+    @Test
+    fun descuentoPorDoblado() {
+        val c = Calculadora(Ajustes(descontarDoblado = true))
+        val d = c.calcular(Viga(largo = 5.4, recubrimiento = 2.5))
+        val inferior = d.fila("Inferior")
+        // U de Ø16: 20 + 535 + 20 = 575, menos 2 dobleces × 3 cm (2 × 1,6)
+        assertEquals(569, inferior.longitud)
+        assertEquals(6, inferior.descuento)
+        val estribo = d.fila("Estribos")
+        // Ø8: 136 − 3 dobleces × 2 cm
+        assertEquals(130, estribo.longitud)
+        assertTrue("descontado 6 cm" in estribo.dobleces())
+        assertEquals(575, calc.calcular(Viga(largo = 5.4)).fila("Inferior").longitud)
+    }
+
+    @Test
+    fun barraComercialDeSeisMetros() {
+        val c = Calculadora(Ajustes(largoComercial = 6.0))
+        val d = c.calcular(Viga(largo = 8.0, recubrimiento = 2.5))
+        // 20 + 795 + 20 = 835 cm > 600: dos piezas con traslapo de 80 cm
+        val p1 = d.fila("Inferior · pieza 1 de 2")
+        val p2 = d.fila("Inferior · pieza 2 de 2")
+        assertEquals(600, p1.longitud)
+        assertEquals(835 + 80, p1.longitud + p2.longitud)
+    }
+
+    @Test
     fun separacionInvalidaDejaNota() {
         val d = calc.calcular(Losa(inferior = Malla(separacionX = 0.0)))
         assertTrue(d.barras.none { it.descripcion == "Inferior dir. X" })

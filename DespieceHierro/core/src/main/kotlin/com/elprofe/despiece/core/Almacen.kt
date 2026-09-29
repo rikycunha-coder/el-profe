@@ -25,6 +25,7 @@ object Almacen {
     fun obraDeEjemplo(ahora: Long): Obra = Obra(
         nombre = "Ejemplo · Vivienda",
         creada = ahora,
+        ajustes = Ajustes.de(Norma.ACI_318),
         elementos = listOf(
             Losa(nombre = "Losa L-1", largoX = 5.2, largoY = 4.1, conSuperior = true),
             Viga(nombre = "Viga V-1", largo = 5.4, cantidad = 2),

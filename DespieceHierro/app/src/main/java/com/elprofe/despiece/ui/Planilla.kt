@@ -90,7 +90,7 @@ fun FilaBarra(barra: Barra, veces: Int) {
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
-                Text("Ø${barra.diametro} · ${barra.forma.etiqueta}", style = MaterialTheme.typography.bodyMedium)
+                Text("Ø${barra.diametro} · ${barra.dobleces()}", style = MaterialTheme.typography.bodyMedium)
                 Text("Medidas: ${barra.medidas()} cm", style = MaterialTheme.typography.bodySmall)
                 val total = barra.cantidad * veces
                 val cantidad = if (veces > 1) "${barra.cantidad} × $veces = $total uds" else "$total uds"

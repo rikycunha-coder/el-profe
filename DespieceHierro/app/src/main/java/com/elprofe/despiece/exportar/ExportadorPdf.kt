@@ -6,10 +6,12 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import com.elprofe.despiece.core.Ajustes
 import com.elprofe.despiece.core.Alineacion
 import com.elprofe.despiece.core.Barra
 import com.elprofe.despiece.core.Croquis
 import com.elprofe.despiece.core.DespieceElemento
+import com.elprofe.despiece.core.ExportadorExcel
 import com.elprofe.despiece.core.Formato
 import com.elprofe.despiece.core.ResumenObra
 import java.io.OutputStream
@@ -28,6 +30,7 @@ object ExportadorPdf {
             r.despieces.forEach { hoja.elemento(it) }
             hoja.resumen(r)
             hoja.cortes(r)
+            hoja.listaDeCompra(r)
             hoja.terminar()
             doc.writeTo(salida)
         } finally {
@@ -170,21 +173,41 @@ object ExportadorPdf {
         fun portada(r: ResumenObra) {
             nuevaPagina()
             canvas.drawText(recortar(r.obra.nombre, anchoPagina - 2 * margen, titulo1), margen, y + 14f, titulo1)
-            y += 26f
+            y += 28f
+            canvas.drawText("Resumen del proyecto", margen, y + 12f, titulo2)
+            y += 20f
             val aj = r.obra.ajustes
+            val margenTexto =
+                if (r.margen > 0) "${Formato.porcentaje(r.margen)} adicional, aparte del neto (solo en la lista de compra)"
+                else "Sin margen adicional"
             val datos = listOf(
-                "Fecha: " + DateFormat.getDateInstance(DateFormat.LONG).format(Date()),
-                "Elementos: ${r.despieces.size} · Acero colocado: ${Formato.kg(r.peso)} kg · A comprar: " +
-                    "${r.barrasComerciales} barras (${Formato.kg(r.pesoComprado)} kg, desperdicio ${Formato.porcentaje(r.desperdicio)})",
-                "Barra comercial ${Formato.editable(aj.largoComercial)} m · traslapo ${Formato.editable(aj.empalmeDiametros)}Ø · " +
-                    "pata automática ${Formato.editable(aj.pataDiametros)}Ø · gancho de estribos ${Formato.editable(aj.ganchoDiametros)}Ø",
-                "Medidas exteriores en cm, sin descontar alargamientos por doblado. Pesos con 7.850 kg/m³.",
+                "Fecha" to DateFormat.getDateInstance(DateFormat.LONG).format(Date()),
+                "Tipo de estructura" to "${r.tipoEstructura} (${r.despieces.size} elementos)",
+                "Material principal" to aj.acero,
+                "Norma de referencia" to aj.norma.etiqueta,
+                "Barra comercial" to "${Formato.editable(aj.largoComercial)} m",
+                "Acero neto colocado" to "${Formato.kg(r.peso)} kg",
+                "A comprar" to "${r.barrasComerciales} barras (${Formato.kg(r.pesoComprado)} kg)",
+                "Desperdicio total estimado" to "${Formato.porcentaje(r.desperdicio)} (${Formato.num(r.sobrante)} m sobrantes de corte)",
+                "Margen de seguridad" to margenTexto,
+                "Traslapo" to ExportadorExcel.traslapoEnTexto(aj),
+                "Patas y ganchos" to "pata ${Formato.editable(aj.pataDiametros)}Ø · ganchos de estribos y trabas " +
+                    "${Formato.editable(aj.ganchoDiametros)}Ø (mín. ${Formato.editable(Ajustes.GANCHO_MINIMO_CM)} cm)",
+                "Doblado" to if (aj.descontarDoblado) "se descuentan 2Ø por cada doblez a 90°"
+                else "medidas exteriores sin descontar el alargamiento (conservador)",
             )
-            for (d in datos) {
-                canvas.drawText(recortar(d, anchoPagina - 2 * margen, texto), margen, y + 9f, texto)
-                y += 12f
+            val xValor = margen + 130f
+            for ((etiqueta, valor) in datos) {
+                canvas.drawText(etiqueta, margen, y + 9f, negrita)
+                canvas.drawText(recortar(valor, anchoPagina - margen - xValor, texto), xValor, y + 9f, texto)
+                y += 12.5f
             }
-            y += 8f
+            y += 4f
+            for (l in lineas(aj.norma.detalle, anchoPagina - 2 * margen, gris, 3)) {
+                canvas.drawText(l, margen, y + 8f, gris)
+                y += 10f
+            }
+            y += 12f
         }
 
         fun elemento(d: DespieceElemento) {
@@ -309,6 +332,48 @@ object ExportadorPdf {
                 negrita,
             )
             y += 14f
+        }
+
+        fun listaDeCompra(r: ResumenObra) {
+            val conMargen = r.margen > 0
+            espacio(22f + 14f + 13f * (r.porDiametro.size + 1) + 24f)
+            canvas.drawText("Lista de compra consolidada", margen, y + 12f, titulo2)
+            y += 20f
+            val lc = Formato.editable(r.obra.ajustes.largoComercial)
+            val m = Formato.porcentaje(r.margen)
+            val cols = mutableListOf(
+                Columna("Ø (mm)", 55f),
+                Columna("Barras de $lc m", 85f, true),
+                Columna("A comprar (kg)", 85f, true),
+                Columna("Neto (kg)", 80f, true),
+            )
+            if (conMargen) {
+                cols += Columna("Barras + $m", 95f, true)
+                cols += Columna("Con margen (kg)", 95f, true)
+            }
+            encabezado(cols)
+            for (rd in r.porDiametro) {
+                val valores = mutableListOf(
+                    "Ø${rd.diametro}", rd.barrasComerciales.toString(), Formato.num(rd.pesoComprado), Formato.num(rd.peso),
+                )
+                if (conMargen) {
+                    valores += rd.barrasConMargen(r.margen).toString()
+                    valores += Formato.num(rd.pesoConMargen(r.margen))
+                }
+                filaSimple(cols, valores)
+            }
+            val total = mutableListOf("TOTAL", r.barrasComerciales.toString(), Formato.num(r.pesoComprado), Formato.num(r.peso))
+            if (conMargen) {
+                total += r.barrasConMargen.toString()
+                total += Formato.num(r.pesoConMargen)
+            }
+            filaSimple(cols, total, negrita)
+            y += 4f
+            val nota = "Neto = acero colocado según la planilla. «A comprar» sale del plan de corte" +
+                if (conMargen) "; el margen de $m se suma aparte." else "."
+            espacio(12f)
+            canvas.drawText(recortar(nota, anchoPagina - 2 * margen, gris), margen, y + 8f, gris)
+            y += 22f
         }
 
         fun cortes(r: ResumenObra) {

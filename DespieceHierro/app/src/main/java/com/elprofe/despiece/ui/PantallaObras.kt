@@ -199,13 +199,13 @@ private fun DialogoAyuda(onCerrar: () -> Unit) {
         title = { Text("Cómo se calcula") },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("• Medidas exteriores de las barras, redondeadas al centímetro. No se descuenta el alargamiento por doblado.")
+                Text("• Cada obra usa una norma de referencia (ACI 318 o Eurocódigo 2) que fija patas, ganchos y traslapos. Se cambia en Ajustes (engranaje).")
+                Text("• Medidas exteriores de las barras, redondeadas al centímetro. Opcionalmente se descuenta el alargamiento por doblado (2Ø por doblez a 90°).")
                 Text("• El recubrimiento se descuenta en cada extremo y en cada cara.")
                 Text("• Cantidad de barras = huecos necesarios para no superar la separación + 1.")
-                Text("• Pata automática = 12Ø; gancho de estribos y trabas = 10Ø (mínimo 7,5 cm). Se cambian en los ajustes de cada obra.")
-                Text("• Si una barra supera el largo comercial (12 m) se corta en piezas con traslapo de 50Ø.")
+                Text("• Si una barra supera el largo comercial (6 o 12 m) se corta en piezas con traslapo.")
                 Text("• Peso = π/4 · Ø² · 7.850 kg/m³ (Ø12 = 0,888 kg/m).")
-                Text("• El plan de corte agrupa las piezas en barras comerciales dejando el menor sobrante posible.")
+                Text("• El plan de corte agrupa las piezas en barras comerciales dejando el menor sobrante posible. El margen de desperdicio, si lo pides, se muestra aparte del neto.")
                 Text(
                     "Los valores por defecto son orientativos: comprueba anclajes, traslapos y ganchos con tu norma y con los planos del calculista.",
                     fontWeight = FontWeight.SemiBold,

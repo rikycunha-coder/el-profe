@@ -8,15 +8,25 @@ object ExportadorExcel {
 
     fun generar(r: ResumenObra, fecha: String): ByteArray {
         val libro = LibroExcel()
-        planilla(libro, r, fecha)
         resumen(libro, r, fecha)
+        planilla(libro, r, fecha)
         cortes(libro, r)
         return libro.bytes()
     }
 
-    private fun ajustesEnTexto(aj: Ajustes): String =
-        "Barra comercial ${Formato.editable(aj.largoComercial)} m · traslapo ${Formato.editable(aj.empalmeDiametros)}Ø · " +
-            "pata automática ${Formato.editable(aj.pataDiametros)}Ø · gancho de estribos ${Formato.editable(aj.ganchoDiametros)}Ø"
+    /** "ACI 318 · Acero … · barra comercial 12 m" */
+    fun criteriosEnTexto(aj: Ajustes): String =
+        "${aj.norma.etiqueta} · ${aj.acero} · barra comercial ${Formato.editable(aj.largoComercial)} m · " +
+            "traslapo ${traslapoEnTexto(aj)} · pata ${Formato.editable(aj.pataDiametros)}Ø · " +
+            "ganchos ${Formato.editable(aj.ganchoDiametros)}Ø" +
+            if (aj.descontarDoblado) " · doblado descontado (2Ø por doblez)" else ""
+
+    fun traslapoEnTexto(aj: Ajustes): String {
+        val fino = Formato.editable(aj.empalmeDiametros) + "Ø"
+        val grueso = aj.empalmeGruesoDiametros
+        return if (grueso == null || grueso == aj.empalmeDiametros) fino
+        else "$fino (${Formato.editable(grueso)}Ø desde Ø${Ajustes.DIAMETRO_GRUESO})"
+    }
 
     private fun encabezados(h: LibroExcel.Hoja, vararg titulos: String) {
         val f = h.fila()
@@ -27,17 +37,17 @@ object ExportadorExcel {
 
     private fun planilla(libro: LibroExcel, r: ResumenObra, fecha: String) {
         val h = libro.hoja("Planilla")
-        h.anchos(22.0, 8.0, 8.0, 7.0, 32.0, 7.0, 14.0, 28.0, 10.0, 10.0, 9.0, 11.0, 8.0, 11.0)
+        h.anchos(22.0, 8.0, 8.0, 7.0, 30.0, 7.0, 36.0, 26.0, 10.0, 10.0, 9.0, 11.0, 8.0, 11.0)
         h.fila().texto("Despiece de hierro · ${r.obra.nombre}", Estilo.TITULO)
         h.combinar("A1:N1")
-        h.fila().texto("$fecha · ${ajustesEnTexto(r.obra.ajustes)}", Estilo.NOTA)
+        h.fila().texto("$fecha · ${criteriosEnTexto(r.obra.ajustes)}", Estilo.NOTA)
         h.fila().texto(
-            "Medidas exteriores en cm. Pesos con 7.850 kg/m³. Cant. total, largo total y peso son fórmulas.",
+            "Corte neto. Medidas exteriores en cm. Pesos con 7.850 kg/m³. Cant. total, largo total y peso son fórmulas.",
             Estilo.NOTA,
         )
         h.saltar()
         encabezados(
-            h, "Elemento", "Tipo", "Iguales", "Marca", "Descripción", "Ø (mm)", "Forma", "Medidas (cm)",
+            h, "Elemento", "Tipo", "Iguales", "Marca", "Descripción", "Ø (mm)", "Forma y dobleces", "Medidas (cm)",
             "Largo unitario (m)", "Cant. por elemento", "Cant. total", "Largo total (m)", "kg/m", "Peso (kg)",
         )
         val filaEncabezado = h.proximaFila - 1
@@ -56,7 +66,7 @@ object ExportadorExcel {
                     .entero(b.marca)
                     .texto(b.descripcion)
                     .entero(b.diametro)
-                    .texto(b.forma.etiqueta)
+                    .texto(b.dobleces())
                     .texto(b.medidas())
                     .numero(b.longitud / 100.0)
                     .entero(b.cantidad)
@@ -92,8 +102,32 @@ object ExportadorExcel {
         h.fila().texto(fecha, Estilo.NOTA)
         h.saltar()
 
-        val lc = r.obra.ajustes.largoComercial
-        h.fila().texto("Acero por diámetro", Estilo.SUBTITULO)
+        val aj = r.obra.ajustes
+        val lc = aj.largoComercial
+        fun dato(etiqueta: String, valor: String) {
+            val n = h.proximaFila
+            h.fila().texto(etiqueta, Estilo.ETIQUETA).vacia(Estilo.NORMAL).texto(valor, Estilo.NORMAL)
+            h.combinar("A$n:B$n")
+        }
+        h.fila().texto("Resumen del proyecto", Estilo.SUBTITULO)
+        dato("Tipo de estructura", r.tipoEstructura)
+        dato("Material principal", aj.acero)
+        dato("Norma de referencia", aj.norma.etiqueta)
+        dato("Barra comercial", "${Formato.editable(lc)} m")
+        dato(
+            "Desperdicio total estimado",
+            "${Formato.porcentaje(r.desperdicio)} (${Formato.num(r.sobrante)} m sobrantes de corte)",
+        )
+        dato(
+            "Margen de seguridad",
+            if (r.margen > 0) "${Formato.porcentaje(r.margen)} adicional, solo en la lista de compra" else "Sin margen adicional",
+        )
+        h.saltar()
+
+        listaDeCompra(h, r)
+        h.saltar()
+
+        h.fila().texto("Acero por diámetro (neto y plan de corte)", Estilo.SUBTITULO)
         encabezados(
             h, "Ø (mm)", "Piezas", "Largo total (m)", "kg/m", "Peso (kg)",
             "Barras de ${Formato.editable(lc)} m", "Peso comprado (kg)", "Desperdicio",
@@ -156,18 +190,17 @@ object ExportadorExcel {
         }
         h.saltar()
 
-        val aj = r.obra.ajustes
         h.fila().texto("Criterios de cálculo", Estilo.SUBTITULO)
-        fun criterio(etiqueta: String, valor: Double) {
-            val n = h.proximaFila
-            h.fila().texto(etiqueta, Estilo.ETIQUETA).vacia(Estilo.NORMAL).numero(valor)
-            h.combinar("A$n:B$n")
-        }
-        criterio("Largo de la barra comercial (m)", aj.largoComercial)
-        criterio("Traslapo (× Ø)", aj.empalmeDiametros)
-        criterio("Pata automática (× Ø)", aj.pataDiametros)
-        criterio("Gancho de estribos y trabas (× Ø)", aj.ganchoDiametros)
-        h.fila().texto("Medidas exteriores, sin descontar el alargamiento por doblado.", Estilo.NOTA)
+        dato("Norma", aj.norma.etiqueta)
+        dato("Traslapo", traslapoEnTexto(aj))
+        dato("Pata automática", "${Formato.editable(aj.pataDiametros)}Ø")
+        dato("Ganchos de estribos y trabas", "${Formato.editable(aj.ganchoDiametros)}Ø (mín. ${Formato.editable(Ajustes.GANCHO_MINIMO_CM)} cm)")
+        dato(
+            "Doblado",
+            if (aj.descontarDoblado) "Se descuentan 2Ø por cada doblez a 90°"
+            else "Medidas exteriores, sin descontar el alargamiento (conservador)",
+        )
+        h.fila().texto(aj.norma.detalle, Estilo.NOTA)
 
         val notas = r.despieces.flatMap { d -> d.notas.map { "${d.elemento.nombre}: $it" } }
         if (notas.isNotEmpty()) {
@@ -178,6 +211,39 @@ object ExportadorExcel {
     }
 
     private fun lcTexto(lc: Double): String = Formato.editable(lc).replace(',', '.')
+
+    /** Barras comerciales a comprar por diámetro; el margen opcional va en columnas aparte del neto. */
+    private fun listaDeCompra(h: LibroExcel.Hoja, r: ResumenObra) {
+        val lc = r.obra.ajustes.largoComercial
+        val conMargen = r.margen > 0
+        h.fila().texto("Lista de compra consolidada", Estilo.SUBTITULO)
+        val titulos = mutableListOf("Ø (mm)", "Barras de ${Formato.editable(lc)} m", "Peso a comprar (kg)", "Peso neto colocado (kg)")
+        if (conMargen) {
+            val m = Formato.porcentaje(r.margen)
+            titulos += listOf("Barras con margen $m", "Peso con margen $m (kg)")
+        }
+        encabezados(h, *titulos.toTypedArray())
+        val primera = h.proximaFila
+        for (rd in r.porDiametro) {
+            val f = h.fila()
+                .entero(rd.diametro)
+                .entero(rd.barrasComerciales)
+                .numero(rd.pesoComprado)
+                .numero(rd.peso)
+            if (conMargen) f.entero(rd.barrasConMargen(r.margen)).numero(rd.pesoConMargen(r.margen))
+        }
+        val ultima = h.proximaFila - 1
+        if (ultima < primera) return
+        val f = h.fila()
+            .texto("TOTAL", Estilo.TOTAL_TEXTO)
+            .formula("SUM(B$primera:B$ultima)", r.barrasComerciales.toDouble(), Estilo.TOTAL_ENTERO)
+            .formula("SUM(C$primera:C$ultima)", r.pesoComprado, Estilo.TOTAL_DECIMAL)
+            .formula("SUM(D$primera:D$ultima)", r.peso, Estilo.TOTAL_DECIMAL)
+        if (conMargen) {
+            f.formula("SUM(E$primera:E$ultima)", r.barrasConMargen.toDouble(), Estilo.TOTAL_ENTERO)
+                .formula("SUM(F$primera:F$ultima)", r.pesoConMargen, Estilo.TOTAL_DECIMAL)
+        }
+    }
 
     // ------------------------------------------------------------ Plan de corte
 

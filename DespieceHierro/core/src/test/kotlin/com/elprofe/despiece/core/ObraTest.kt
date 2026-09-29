@@ -74,9 +74,41 @@ class ObraTest {
         assertTrue("[Content_Types].xml" in partes)
         assertTrue(partes.getValue("xl/workbook.xml").contains("name=\"Plan de corte\""))
         assertEquals(3, partes.keys.count { it.startsWith("xl/worksheets/sheet") })
-        val planilla = partes.getValue("xl/worksheets/sheet1.xml")
+        assertTrue(partes.getValue("xl/workbook.xml").indexOf("\"Resumen\"") < partes.getValue("xl/workbook.xml").indexOf("\"Planilla\""))
+        val planilla = partes.getValue("xl/worksheets/sheet2.xml")
         assertTrue(planilla.contains("<f>L6*M6</f>"))
-        assertTrue(partes.getValue("xl/sharedStrings.xml").contains("Pilar P-1"))
+        val textos = partes.getValue("xl/sharedStrings.xml")
+        assertTrue(textos.contains("Pilar P-1"))
+        assertTrue(textos.contains("Resumen del proyecto"))
+        assertTrue(textos.contains("Lista de compra consolidada"))
+        assertTrue(textos.contains("Estribo cerrado: 3 dobleces a 90°"))
+    }
+
+    @Test
+    fun margenDeDesperdicioVaAparteDelNeto() {
+        val base = Almacen.obraDeEjemplo(0L)
+        val sin = ResumenObra.de(base)
+        val con = ResumenObra.de(base.copy(ajustes = base.ajustes.copy(margenDesperdicio = 5.0)))
+        assertEquals(sin.peso, con.peso, 1e-9)
+        assertEquals(sin.barrasComerciales, con.barrasComerciales)
+        assertEquals(sin.barrasComerciales, sin.barrasConMargen)
+        for (rd in con.porDiametro) {
+            assertEquals(kotlin.math.ceil(rd.barrasComerciales * 1.05 - 1e-9).toInt(), rd.barrasConMargen(0.05))
+        }
+        assertTrue(con.pesoConMargen > con.pesoComprado)
+        val excel = ExportadorExcel.generar(con, "hoy")
+        val textos = java.util.zip.ZipInputStream(excel.inputStream()).use { zip ->
+            generateSequence { zip.nextEntry }.first { it.name == "xl/sharedStrings.xml" }
+            zip.readBytes().toString(Charsets.UTF_8)
+        }
+        assertTrue(textos.contains("Barras con margen 5,0 %"))
+    }
+
+    @Test
+    fun tipoDeEstructuraSegunLosElementos() {
+        assertEquals("Losas, vigas, muros y pilares", ResumenObra.de(Almacen.obraDeEjemplo(0L)).tipoEstructura)
+        assertEquals("Pilares", ResumenObra.de(Obra(elementos = listOf(Pilar()))).tipoEstructura)
+        assertEquals("Vigas y pilares", ResumenObra.de(Obra(elementos = listOf(Pilar(), Viga()))).tipoEstructura)
     }
 
     @Test
