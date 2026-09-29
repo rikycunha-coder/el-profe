@@ -9,8 +9,21 @@
 #>
 
 "=== OBSIDIAN ==="
-$ob = "$env:LOCALAPPDATA\Obsidian\Obsidian.exe"
-if (Test-Path $ob) { "  app: INSTALADA" } else { "  app: no encontrada" }
+$rutasObsidian = @(
+    "$env:LOCALAPPDATA\Obsidian\Obsidian.exe",
+    "$env:ProgramFiles\Obsidian\Obsidian.exe",
+    "${env:ProgramFiles(x86)}\Obsidian\Obsidian.exe",
+    "$env:LOCALAPPDATA\Programs\Obsidian\Obsidian.exe"
+)
+$obEncontrado = ""
+foreach ($r in $rutasObsidian) {
+    if ($r -and (Test-Path $r)) { $obEncontrado = $r; break }
+}
+if ($obEncontrado -ne "") {
+    "  app: INSTALADA -> $obEncontrado"
+} else {
+    "  app: no encontrada en las rutas habituales (puede ser version de Microsoft Store)"
+}
 
 $oj = "$env:APPDATA\obsidian\obsidian.json"
 if (Test-Path $oj) {
