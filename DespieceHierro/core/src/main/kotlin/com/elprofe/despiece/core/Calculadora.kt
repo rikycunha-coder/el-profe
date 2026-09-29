@@ -125,10 +125,8 @@ class Calculadora(private val ajustes: Ajustes) {
             p.nota("La altura del pilar debe ser mayor que cero.")
             return
         }
-        val lon = e.longitudinal
-        val arriba = if (e.traslapoSuperior) ajustes.empalme(lon.diametro).toDouble() else -r
-        val recto = redondear(e.anclaje + altura + arriba)
-        longitudinal(p, "Longitudinales", lon.diametro, lon.cantidad, recto, ajustes.pata(lon.pata, lon.diametro), 0)
+        verticalPilar(p, "Longitudinales", e.longitudinal, e, altura)
+        if (!e.circular) verticalPilar(p, "Piel (caras)", e.piel, e, altura)
 
         val est = e.estribos
         if (!separacionValida(p, "Estribos", est.separacion)) return
@@ -148,6 +146,14 @@ class Calculadora(private val ajustes: Ajustes) {
             if (e.trabasB > 0) traba(p, "Trabas paralelas a b", est.diametro, n * e.trabasB, a)
             if (e.trabasH > 0) traba(p, "Trabas paralelas a h", est.diametro, n * e.trabasH, h)
         }
+    }
+
+    /** Barras verticales del pilar: anclaje en la fundación, pata abajo y espera con traslapo arriba. */
+    private fun verticalPilar(p: Planilla, desc: String, g: GrupoBarras, e: Pilar, altura: Double) {
+        if (g.cantidad <= 0) return
+        val arriba = if (e.traslapoSuperior) ajustes.empalme(g.diametro).toDouble() else -e.recubrimiento
+        val recto = redondear(e.anclaje + altura + arriba)
+        longitudinal(p, desc, g.diametro, g.cantidad, recto, ajustes.pata(g.pata, g.diametro), 0)
     }
 
     // ---------------------------------------------------------------- Barras adicionales

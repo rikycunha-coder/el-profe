@@ -115,6 +115,29 @@ class CalculadoraTest {
     }
 
     @Test
+    fun pilarConArmaduraDePiel() {
+        val d = calc.calcular(
+            Pilar(b = 40.0, h = 60.0, altura = 3.0, anclaje = 40.0, piel = GrupoBarras(cantidad = 6, diametro = 12)),
+        )
+        val esquinas = d.fila("Longitudinales")
+        assertEquals(listOf(20, 40 + 300 + 80), esquinas.tramos)
+        assertEquals(4, esquinas.cantidad)
+        // La piel lleva su propio traslapo (Ø12 → 60 cm) y su pata automática (12 × 1,2 = 14,4 → 15 cm).
+        val piel = d.fila("Piel (caras)")
+        assertEquals(12, piel.diametro)
+        assertEquals(Forma.L, piel.forma)
+        assertEquals(listOf(15, 40 + 300 + 60), piel.tramos)
+        assertEquals(6, piel.cantidad)
+    }
+
+    @Test
+    fun pilarSinPielOCircularNoLlevaPiel() {
+        assertTrue(calc.calcular(Pilar()).barras.none { it.descripcion.startsWith("Piel") })
+        val circular = Pilar(circular = true, piel = GrupoBarras(cantidad = 6, diametro = 12))
+        assertTrue(calc.calcular(circular).barras.none { it.descripcion.startsWith("Piel") })
+    }
+
+    @Test
     fun pilarCircularConZunchos() {
         val d = calc.calcular(Pilar(circular = true, diametroSeccion = 40.0, recubrimiento = 2.5))
         val z = d.fila("Zunchos")

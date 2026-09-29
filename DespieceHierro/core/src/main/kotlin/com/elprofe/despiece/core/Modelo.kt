@@ -199,6 +199,11 @@ data class Pilar(
     val altura: Double = 3.0,
     val recubrimiento: Double = 2.5,
     val longitudinal: GrupoBarras = GrupoBarras(cantidad = 4, diametro = 16),
+    /**
+     * Armadura de piel: barras intermedias en las caras, entre las de esquina (solo sección
+     * rectangular). Número total en las cuatro caras; mismo anclaje, pata y traslapo que las longitudinales.
+     */
+    val piel: GrupoBarras = GrupoBarras(cantidad = 0, diametro = 12),
     /** Largo recto que entra en la fundación, cm. */
     val anclaje: Double = 0.0,
     val traslapoSuperior: Boolean = true,

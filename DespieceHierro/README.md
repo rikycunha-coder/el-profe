@@ -23,7 +23,8 @@ perder las obras.
 - **Muro**: simple o doble malla, verticales con anclaje, pata y espera para traslapo,
   horizontales con patas y trabas por m².
 - **Pilar**: rectangular (estribos y trabas) o circular (zunchos); longitudinales con anclaje,
-  pata y espera para traslapo.
+  pata y espera para traslapo, y armadura de piel (barras intermedias en las caras) con su propio
+  diámetro.
 - **Barras adicionales** en cualquier elemento: suples, bastones, esquineros o estribos especiales.
 - **Planilla** con marca, forma dibujada con sus cotas, Ø, medidas, largo de corte, cantidad y peso.
 - **Resumen por diámetro** y **plan de corte** en barras comerciales de 12 m con el desperdicio.

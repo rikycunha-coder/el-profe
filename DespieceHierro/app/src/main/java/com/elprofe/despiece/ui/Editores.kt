@@ -138,12 +138,16 @@ private fun EditorViga(e: Viga, onCambio: (Elemento) -> Unit) {
 }
 
 @Composable
-private fun EditorGrupo(g: GrupoBarras, onCambio: (GrupoBarras) -> Unit) {
+private fun EditorGrupo(
+    g: GrupoBarras,
+    etiquetaPata: String = "Patas en los extremos",
+    onCambio: (GrupoBarras) -> Unit,
+) {
     Fila {
         CampoEntero("Cantidad", g.cantidad, Modifier.weight(1f), unidad = "uds") { onCambio(g.copy(cantidad = it)) }
         SelectorDiametro("Diámetro", g.diametro, Modifier.weight(1f)) { onCambio(g.copy(diametro = it)) }
     }
-    CampoPata("Patas en los extremos", g.pata, g.diametro) { onCambio(g.copy(pata = it)) }
+    CampoPata(etiquetaPata, g.pata, g.diametro) { onCambio(g.copy(pata = it)) }
 }
 
 @Composable
@@ -252,6 +256,15 @@ private fun EditorPilar(e: Pilar, onCambio: (Elemento) -> Unit) {
             e.traslapoSuperior,
             "Suma ${LocalAjustes.current.empalme(e.longitudinal.diametro)} cm para empalmar con el nivel superior",
         ) { onCambio(e.copy(traslapoSuperior = it)) }
+    }
+    if (!e.circular) {
+        Seccion("Armadura de piel (caras)") {
+            EditorGrupo(e.piel, etiquetaPata = "Pata inferior") { onCambio(e.copy(piel = it)) }
+            Ayuda(
+                "Barras intermedias en las caras, entre las de esquina. Número total en las cuatro caras. " +
+                    "Usan el mismo anclaje y la misma espera que las longitudinales. 0 = sin piel.",
+            )
+        }
     }
     Seccion(if (e.circular) "Zunchos (estribos circulares)" else "Estribos") {
         EditorEstribos(e.estribos) { onCambio(e.copy(estribos = it)) }
