@@ -1,0 +1,26 @@
+# Obsidian: la configuración del editor y el estado de las ventanas no
+# pertenecen al repositorio, pero las notas sí
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/
+
+# Secretos: nunca en el repositorio
+.env
+.env.*
+*.keystore
+*.jks
+google-services.json
+service-account*.json
+
+# Compilación
+build/
+dist/
+out/
+node_modules/
+*.apk
+*.aab
+
+# Sistema
+.DS_Store
+Thumbs.db
