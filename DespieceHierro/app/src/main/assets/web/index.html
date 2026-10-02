@@ -123,6 +123,34 @@ button,input,select,textarea{font:inherit;color:inherit}
 .pl-dim{fill:none;stroke:var(--line-2);stroke-width:1}
 .pl-t{fill:var(--muted);font:500 12px var(--fm)}
 .plano-vacio{margin:0;padding:18px;border:1px dashed var(--line-2);border-radius:var(--r-sm);font:500 13px var(--fb);color:var(--muted);text-align:center}
+.plano svg.libre{touch-action:none;max-height:320px}
+.pl-v{fill:var(--surface);stroke:var(--ink);stroke-width:1.5;cursor:grab}
+.pl-v:active{cursor:grabbing}
+.pl-vt{font:600 10px var(--fm);fill:var(--ink);pointer-events:none}
+.pl-hu{fill:var(--bg);stroke:var(--line-2);stroke-width:1.2;stroke-dasharray:3 2}
+.vx-row,.hu-row{display:grid;gap:6px;align-items:center}
+.vx-row{grid-template-columns:22px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 42px}
+.hu{border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 10px 10px;display:grid;gap:8px;background:var(--bg)}
+.hu-top{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;align-items:center}
+.hu-f{display:flex;flex-wrap:wrap;gap:8px}
+.hu-f .fld{flex:1 1 90px}
+.hu-f .fld-i{min-height:40px}
+.vx-n{font:600 12px/1 var(--fm);color:var(--muted);text-align:right}
+.vx-h{display:grid;grid-template-columns:22px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 42px;gap:6px;font:600 11px/1.2 var(--fb);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:0 2px}
+.vx-row .fld-i{min-height:40px;padding-inline:8px 6px}
+.vx-row input{font-size:15px;padding:7px 0}
+.forma-act{display:flex;flex-wrap:wrap;gap:8px}
+.dxf-cab{font:500 13.5px/1.5 var(--fb);color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.dxf-lista{display:grid;gap:6px}
+.dxf-fila{display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg);font:500 13.5px/1.35 var(--fb);cursor:pointer}
+.dxf-fila input{width:18px;height:18px;flex:none;accent-color:var(--primary)}
+.dxf-fila:has(input:checked){border-color:var(--ink-2)}
+.ia-losa{border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;background:var(--bg);display:grid;gap:4px;font:500 13.5px/1.4 var(--fb)}
+.ia-losa b{font:700 16px/1.2 var(--fd)}
+.ia-losa ul{margin:0;padding-left:18px;color:var(--muted);font-size:12.5px}
+.ia-img{max-width:100%;max-height:220px;border-radius:var(--r-sm);border:1px solid var(--line);justify-self:start}
+.ia-clave{display:grid;gap:10px}
+.ia-clave .fld-i input{font-family:var(--fm);font-size:14px}
 
 .capa{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:10px}
 .capa-inf,.capa-ext,.lg.inf{--c:var(--inf)} .capa-sup,.capa-int,.lg.sup{--c:var(--sup)} .capa-pate{--c:var(--pate)} .capa-est{--c:var(--est)} .refs{--c:var(--ref)} .capa-bordes{--c:var(--ink-2)}
@@ -174,6 +202,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .sc-t{fill:none;stroke:var(--est);stroke-width:1.8;stroke-linecap:round}
 .dir-c .w-s3{width:72px}
 .dir-c .w-dp{width:124px}
+.w-auto{width:auto;min-width:0}
+.fld.inline-red{grid-template-columns:auto 110px;align-items:center;gap:8px;flex:1 1 220px}
 .seccion svg{max-height:230px}
 .t .tp{font:500 12px var(--fb);color:var(--muted)}
 .sin-el{margin:0;padding:22px 16px;border:1.5px dashed var(--line-2);border-radius:var(--r);text-align:center;font:500 15px/1.4 var(--fb);color:var(--ink-2)}
@@ -313,6 +343,17 @@ button,input,select,textarea{font:inherit;color:inherit}
         <ul class="msgs" id="cfgMsgs"></ul>
       </section>
       <div class="losas" id="losas"></div>
+      <section class="card" aria-labelledby="planoT">
+        <h2 class="card-t" id="planoT">Desde un plano</h2>
+        <div class="exp">
+          <button type="button" class="btn" data-act="dxf"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10"/></svg><span>Importar DXF<small>Contorno y huecos del CAD</small></span></button>
+          <button type="button" class="btn" data-act="ia"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6M15 8h.01"/></svg><span>Leer plano con IA<small>PDF o foto del plano</small></span></button>
+        </div>
+        <input type="file" id="dxfFile" accept=".dxf,.DXF,application/dxf,image/vnd.dxf" hidden>
+        <input type="file" id="iaFile" accept="image/*,application/pdf" hidden>
+        <div id="dxfRes" class="panel" style="padding-top:12px" hidden></div>
+        <div id="iaRes" class="panel" style="padding-top:12px" hidden></div>
+      </section>
       <div class="add-row" role="group" aria-label="Añadir elemento">
         <button type="button" class="btn" data-act="add" data-tipo="losa"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Losa</button>
         <button type="button" class="btn" data-act="add" data-tipo="viga"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Viga</button>
@@ -560,14 +601,141 @@ const Engine = (() => {
     return o;
   }
 
+  /* ---------- Losas de forma libre: contorno con lados curvos y huecos (mm, eje Y hacia arriba) ---------- */
+  const MAX_SEG_ARCO = 72, MIN_BARRA = 200;
+  /* Puntos intermedios del arco de cuerda p1→p2 y flecha f (mm con signo: + abomba hacia la derecha del recorrido). */
+  function puntosArco(p1, p2, f) {
+    const dx = p2.x - p1.x, dy = p2.y - p1.y, c = Math.hypot(dx, dy), af = Math.abs(f);
+    if (!(c > 1) || af < 1) return [];
+    const R = (c * c / 4 + af * af) / (2 * af), s = Math.sign(f);
+    const ux = dx / c, uy = dy / c, nx = uy * s, ny = -ux * s;
+    const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+    const cx = mx + nx * (af - R), cy = my + ny * (af - R);
+    const a1 = Math.atan2(p1.y - cy, p1.x - cx);
+    let bar = Math.atan2(p2.y - cy, p2.x - cx) - a1;
+    while (bar <= -Math.PI) bar += 2 * Math.PI;
+    while (bar > Math.PI) bar -= 2 * Math.PI;
+    const am = a1 + bar / 2;
+    if (Math.hypot(cx + R * Math.cos(am) - (mx + nx * af), cy + R * Math.sin(am) - (my + ny * af)) > 1) bar += bar > 0 ? -2 * Math.PI : 2 * Math.PI;
+    const n = Math.min(MAX_SEG_ARCO, Math.max(4, Math.ceil(Math.abs(bar) / (2 * Math.acos(Math.max(-1, 1 - 1 / R))))));
+    const pts = [];
+    for (let k = 1; k < n; k++) { const a = a1 + (bar * k) / n; pts.push({ x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) }); }
+    return pts;
+  }
+  function areaFirmada(pts) { let a = 0; for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; a += p.x * q.y - q.x * p.y; } return a / 2; }
+  /* Polígono denso a partir de vértices {x, y, f}; f + = el lado se curva hacia fuera del anillo. */
+  function anillo(verts) {
+    const ccw = areaFirmada(verts) >= 0, out = [];
+    for (let i = 0; i < verts.length; i++) {
+      const p = verts[i], q = verts[(i + 1) % verts.length];
+      out.push({ x: p.x, y: p.y });
+      for (const r of puntosArco(p, q, (p.f || 0) * (ccw ? 1 : -1))) out.push(r);
+    }
+    return out;
+  }
+  function circulo(cx, cy, d) {
+    const n = Math.min(MAX_SEG_ARCO, Math.max(24, Math.ceil((Math.PI * d) / 20))), out = [];
+    for (let k = 0; k < n; k++) { const a = (2 * Math.PI * k) / n; out.push({ x: cx + (d / 2) * Math.cos(a), y: cy + (d / 2) * Math.sin(a) }); }
+    return out;
+  }
+  function dentro(p, an) {
+    let ok = false;
+    for (let i = 0, j = an.length - 1; i < an.length; j = i++) {
+      const a = an[i], b = an[j];
+      if ((a.y > p.y) !== (b.y > p.y) && p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x) ok = !ok;
+    }
+    return ok;
+  }
+  function caja(an) {
+    const c = { xmin: Infinity, xmax: -Infinity, ymin: Infinity, ymax: -Infinity };
+    for (const p of an) { c.xmin = Math.min(c.xmin, p.x); c.xmax = Math.max(c.xmax, p.x); c.ymin = Math.min(c.ymin, p.y); c.ymax = Math.max(c.ymax, p.y); }
+    return c;
+  }
+  /* Tramos de la recta (y = Y si eje 'x', x = Y si eje 'y') dentro de la región, con regla par-impar entre todos los anillos. */
+  function cortes(anillos, Y, eje) {
+    const xs = [];
+    for (const an of anillos) for (let i = 0; i < an.length; i++) {
+      const a = an[i], b = an[(i + 1) % an.length];
+      const ay = eje === 'x' ? a.y : a.x, by = eje === 'x' ? b.y : b.x;
+      if ((ay > Y) !== (by > Y)) { const ax = eje === 'x' ? a.x : a.y, bx = eje === 'x' ? b.x : b.y; xs.push(ax + ((Y - ay) * (bx - ax)) / (by - ay)); }
+    }
+    xs.sort((p, q) => p - q);
+    const out = [];
+    for (let i = 0; i + 1 < xs.length; i += 2) if (xs[i + 1] - xs[i] > 1) out.push([xs[i], xs[i + 1]]);
+    return out;
+  }
+  /* Lee la forma de la losa: devuelve {anillos, caja, area, nHuecos, verts} o null (errores en o). */
+  function geometriaLibre(F, o) {
+    const verts = [];
+    (F.pts || []).forEach((v, k) => {
+      const x = num(v.x), y = num(v.y), f = vacio(v.f) ? 0 : num(v.f);
+      if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(f)) o.errores.push(`Contorno: el vértice ${k + 1} no tiene coordenadas válidas.`);
+      else verts.push({ x: Math.round(x * 1000), y: Math.round(y * 1000), f: Math.round(f * 10) });
+    });
+    if (o.errores.length) return null;
+    if (verts.length < 3) { o.errores.push('Contorno: hacen falta al menos 3 vértices.'); return null; }
+    const ext = anillo(verts), aExt = Math.abs(areaFirmada(ext));
+    if (aExt < 1e4) { o.errores.push('Contorno: los vértices no encierran superficie (¿repetidos o en línea?).'); return null; }
+    const anillos = [ext];
+    let area = aExt, nHuecos = 0;
+    (F.huecos || []).forEach((h, k) => {
+      const et = `Hueco ${k + 1}`;
+      let an = null;
+      if (h.tipo === 'circ') {
+        const x = num(h.x), y = num(h.y), d = num(h.d);
+        if (!Number.isFinite(x) || !Number.isFinite(y) || !(d > 0)) { o.errores.push(`${et}: indica centro y diámetro.`); return; }
+        an = circulo(x * 1000, y * 1000, d * 1000);
+      } else if (h.tipo === 'poly') {
+        const vs = (h.pts || []).map(v => ({ x: Math.round(num(v.x) * 1000), y: Math.round(num(v.y) * 1000), f: vacio(v.f) ? 0 : Math.round(num(v.f) * 10) }));
+        if (vs.length < 2 || vs.some(v => !Number.isFinite(v.x) || !Number.isFinite(v.y) || !Number.isFinite(v.f))) { o.errores.push(`${et}: revisa sus vértices.`); return; }
+        an = anillo(vs);
+      } else {
+        const x = num(h.x), y = num(h.y), w = num(h.w), hh = num(h.h);
+        if (!Number.isFinite(x) || !Number.isFinite(y) || !(w > 0) || !(hh > 0)) { o.errores.push(`${et}: indica esquina, ancho y alto.`); return; }
+        const X = x * 1000, Y = y * 1000, W = w * 1000, Hh = hh * 1000;
+        an = [{ x: X, y: Y }, { x: X + W, y: Y }, { x: X + W, y: Y + Hh }, { x: X, y: Y + Hh }];
+      }
+      const aH = Math.abs(areaFirmada(an));
+      if (!(aH > 0)) { o.errores.push(`${et}: no tiene superficie.`); return; }
+      if (!an.every(p => dentro(p, ext))) { o.avisos.push(`${et}: queda fuera del contorno (o lo cruza) y no se descuenta.`); return; }
+      anillos.push(an); area -= aH; nHuecos++;
+    });
+    return { anillos, caja: caja(ext), area, nHuecos, verts };
+  }
+  /* Barras paralelas al eje `dir` ('x' miden a lo largo de X y se reparten a lo ancho de Y), cortadas por huecos y bordes. */
+  function repartoLibre(G, dir, S, R, red) {
+    const [lo, hi] = dir === 'x' ? [G.caja.ymin, G.caja.ymax] : [G.caja.xmin, G.caja.xmax];
+    const ancho = hi - lo - 2 * R;
+    if (ancho <= 0) return null;
+    const nb = Math.ceil(ancho / S - 1e-9) + 1, fam = new Map(), lineas = [];
+    let cortas = 0, total = 0;
+    for (let k = 0; k < nb; k++) {
+      const Y = Math.min(lo + R + k * S, hi - R), tramos = [];
+      for (const [a, b] of cortes(G.anillos, Y, dir)) {
+        const recto = b - a - 2 * R;
+        if (recto < MIN_BARRA) { if (recto > 0) cortas++; continue; }
+        const len = Math.ceil(recto / red - 1e-9) * red;
+        fam.set(len, (fam.get(len) || 0) + 1); total++;
+        tramos.push([a + R, b - R]);
+      }
+      lineas.push({ Y, tramos });
+    }
+    return { nb, fam, cortas, total, lineas };
+  }
+
   /* ---------- Losa ---------- */
   const DIRS = { x: 'longitudinales (X)', y: 'transversales (Y)' };
   function calcLosa(L, i, cfg) {
     const o = nuevoResultado(L, i);
-    const lx = num(L.lx), ly = num(L.ly), canto = num(L.canto), rec = num(L.rec);
+    const libre = !!(L.forma && L.forma.modo === 'libre');
+    if (libre && !Array.isArray(L.forma.pts)) L.forma.pts = [];
+    const G = libre ? geometriaLibre(L.forma, o) : null;
+    const lx = libre ? (G ? (G.caja.xmax - G.caja.xmin) / 1000 : NaN) : num(L.lx);
+    const ly = libre ? (G ? (G.caja.ymax - G.caja.ymin) / 1000 : NaN) : num(L.ly);
+    const canto = num(L.canto), rec = num(L.rec);
     const n = entero(L.n, 1);
-    if (!(lx > 0)) o.errores.push('Indica el largo (X) en metros.');
-    if (!(ly > 0)) o.errores.push('Indica el ancho (Y) en metros.');
+    if (!libre && !(lx > 0)) o.errores.push('Indica el largo (X) en metros.');
+    if (!libre && !(ly > 0)) o.errores.push('Indica el ancho (Y) en metros.');
     if (!(rec >= 0)) o.errores.push('Indica el recubrimiento en cm.');
     if (!(n >= 1)) o.errores.push('Losas iguales: pon un número entero, 1 o más.');
     const infOn = !!(L.inf && L.inf.on), supOn = !!(L.sup && L.sup.on);
@@ -579,7 +747,10 @@ const Engine = (() => {
     const H = canto > 0 ? Math.round(canto * 10) : null;
     if (Lx - 2 * R <= 0 || Ly - 2 * R <= 0) { o.errores.push('El recubrimiento no cabe en esas medidas.'); return o; }
     if (H && 2 * R >= H) { o.errores.push('El recubrimiento es demasiado grande para ese canto.'); return o; }
-    o.geo = { Lx, Ly, H, R, n, area: lx * ly * n, vol: H ? lx * ly * (H / 1000) * n : null };
+    const areaM2 = libre ? G.area / 1e6 : lx * ly;
+    const red = libre ? Math.max(10, Math.round((vacio(L.forma.red) ? 5 : num(L.forma.red)) * 10)) : 10;
+    o.geo = { Lx, Ly, H, R, n, area: areaM2 * n, vol: H ? areaM2 * (H / 1000) * n : null, libre: G, red };
+    if (libre && !Number.isFinite(red)) o.errores.push('Redondeo de largos: pon un número de cm.');
     if (!infOn && !supOn && !(L.refs || []).length) o.avisos.push('Activa al menos una parrilla o añade refuerzos.');
 
     const dUsados = [];
@@ -594,6 +765,24 @@ const Engine = (() => {
         const et = `${nc} ${dir.toUpperCase()}`;
         const d = diametro(M['d' + dir], et, o), S = separacion(M['s' + dir], et, o);
         if (d === null || S === null) continue;
+        if (libre) {
+          const rp = repartoLibre(G, dir, S, R, red);
+          if (!rp) { o.errores.push(`${et}: el recubrimiento no cabe en la losa.`); continue; }
+          const largos = [...rp.fam.keys()].sort((a, b) => b - a);
+          let maxD = 0, tramos = 1, ok = true;
+          largos.forEach((len, j) => {
+            const g = grupoBarras(o, { capa: k, dir, d, S, nb: rp.fam.get(len), D: len + 2 * P, pA: P, pB: P, et, titulo: `${nombre} · ${DIRS[dir]}`,
+              nota: `Ø${d} c/${fmtCm(S)}${largos.length > 1 ? ` · largo ${j + 1} de ${largos.length}` : ''}` }, cfg);
+            if (!g) { ok = false; return; }
+            maxD = Math.max(maxD, g.D); tramos = Math.max(tramos, g.piezas.length);
+          });
+          if (!ok) continue;
+          if (rp.cortas) o.avisos.push(`${et}: ${rp.cortas} tramo${rp.cortas > 1 ? 's' : ''} de menos de ${fmtCm(MIN_BARRA)} cm junto a huecos o bordes no se cuenta${rp.cortas > 1 ? 'n' : ''}.`);
+          if (!rp.total) o.avisos.push(`${et}: no sale ninguna barra.`);
+          dUsados.push(d);
+          info.dirs[dir] = { d, S, nb: rp.total, D: maxD, tramos, familias: largos.length, filas: rp.nb, lineas: rp.lineas };
+          continue;
+        }
         const largo = dir === 'x' ? Lx : Ly, ancho = dir === 'x' ? Ly : Lx;
         const nb = Math.ceil((ancho - 2 * R) / S - 1e-9) + 1;
         const g = grupoBarras(o, { capa: k, dir, d, S, nb, D: r10(largo - 2 * R) + 2 * P, pA: P, pB: P, et, titulo: `${nombre} · ${DIRS[dir]}`, nota: `Ø${d} c/${fmtCm(S)}` }, cfg);
@@ -618,7 +807,7 @@ const Engine = (() => {
         if (auto && h < 50) o.avisos.push('Pates: el canto no deja altura suficiente.');
         else {
           if (!auto && h > hueco) o.avisos.push(`Pates: el alto (${fmtCm(h)} cm) es mayor que el hueco entre parrillas (${fmtCm(Math.max(0, hueco))} cm).`);
-          const nb = Math.ceil(lx * ly * dens - 1e-9);
+          const nb = Math.ceil(areaM2 * dens - 1e-9);
           const len = 2 * pie + 2 * h + cab;
           o.grupos.push({ capa: 'pate', d, nb, D: len, piezas: [{ pate: true, len, f: pie, h, t: cab }], titulo: 'Pates · soporte de la parrilla superior',
             nota: `${fmt(dens, dens % 1 ? 2 : 0)} ud/m² · pie ${fmtCm(pie)}, alto ${fmtCm(h)}${auto ? ' (auto)' : ''}, cabeza ${fmtCm(cab)} cm` });
@@ -1006,7 +1195,8 @@ const Engine = (() => {
     return out;
   }
 
-  return { PESOS, DIAMS, TIPOS, NORMAS, num, entero, fmt, fmtM, fmtCm, letra, solapeMM, ganchoMM, trocear, optimizar, calcular };
+  return { PESOS, DIAMS, TIPOS, NORMAS, num, entero, fmt, fmtM, fmtCm, letra, solapeMM, ganchoMM, trocear, optimizar, calcular,
+    geometriaLibre, repartoLibre, anillo, puntosArco, areaFirmada, cortes, dentro };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = Engine;
 </script>
@@ -1101,6 +1291,203 @@ const PDF = (() => {
   }
   return { Doc, ancho, PW, PH };
 })();
+</script>
+<script>
+/* Lector de DXF (texto): saca los contornos cerrados del dibujo con sus arcos, en milímetros. */
+const DXF = (() => {
+  'use strict';
+  const UNID = { 1: 25.4, 2: 304.8, 4: 1, 5: 10, 6: 1000 };
+  function pares(texto) {
+    const L = texto.split(/\r\n|\r|\n/), out = [];
+    for (let i = 0; i + 1 < L.length; i += 2) { const c = parseInt(L[i].trim(), 10); if (Number.isFinite(c)) out.push([c, L[i + 1].trim()]); }
+    return out;
+  }
+  /* Entidades geométricas de la sección ENTITIES (y $INSUNITS de la cabecera). */
+  function entidades(texto) {
+    const P = pares(texto), out = [];
+    let seccion = '', e = null, poli = null, insunits = null, esperaUnits = false, inserts = 0;
+    const cierra = () => { if (e) out.push(e); e = null; };
+    for (const [c, v] of P) {
+      if (c === 0) {
+        if (v === 'SECTION') { seccion = ''; cierra(); continue; }
+        if (v === 'ENDSEC') { seccion = ''; cierra(); if (poli) { out.push(poli); poli = null; } continue; }
+        if (seccion !== 'ENTITIES') continue;
+        if (v === 'VERTEX' && poli) { cierra(); e = { t: 'VERTEX', v: [] }; continue; }
+        if (v === 'SEQEND' && poli) { cierra(); out.push(poli); poli = null; continue; }
+        cierra();
+        if (v === 'POLYLINE') { poli = { t: 'POLYLINE', v: [], f: 0, capa: '0' }; e = poli; continue; }
+        if (v === 'INSERT') inserts++;
+        e = ['LWPOLYLINE', 'LINE', 'ARC', 'CIRCLE', 'SPLINE'].includes(v) ? { t: v, v: [], f: 0, capa: '0', k: [], cp: [], fp: [] } : null;
+        continue;
+      }
+      if (c === 2 && seccion === '' ) { seccion = v; continue; }
+      if (seccion === 'HEADER') { if (c === 9) esperaUnits = v === '$INSUNITS'; else if (esperaUnits && c === 70) { insunits = parseInt(v, 10); esperaUnits = false; } continue; }
+      if (!e) continue;
+      const n = parseFloat(v);
+      if (e.t === 'VERTEX') {
+        if (c === 10) e.v.push({ x: n, y: 0, b: 0 }); else if (c === 20 && e.v.length) e.v[e.v.length - 1].y = n; else if (c === 42 && e.v.length) e.v[e.v.length - 1].b = n;
+        if (c === 70 || c === 8) {} 
+        continue;
+      }
+      if (c === 8) { e.capa = v; continue; }
+      if (c === 70) { e.f = parseInt(v, 10) || 0; continue; }
+      if (e.t === 'LWPOLYLINE') { if (c === 10) e.v.push({ x: n, y: 0, b: 0 }); else if (c === 20 && e.v.length) e.v[e.v.length - 1].y = n; else if (c === 42 && e.v.length) e.v[e.v.length - 1].b = n; }
+      else if (e.t === 'LINE') { if (c === 10) e.x1 = n; else if (c === 20) e.y1 = n; else if (c === 11) e.x2 = n; else if (c === 21) e.y2 = n; }
+      else if (e.t === 'ARC' || e.t === 'CIRCLE') { if (c === 10) e.cx = n; else if (c === 20) e.cy = n; else if (c === 40) e.r = n; else if (c === 50) e.a1 = n; else if (c === 51) e.a2 = n; }
+      else if (e.t === 'SPLINE') { if (c === 71) e.grado = parseInt(v, 10); else if (c === 40) e.k.push(n); else if (c === 10) e.cp.push({ x: n, y: 0 }); else if (c === 20 && e.cp.length) e.cp[e.cp.length - 1].y = n; else if (c === 11) e.fp.push({ x: n, y: 0 }); else if (c === 21 && e.fp.length) e.fp[e.fp.length - 1].y = n; }
+    }
+    cierra();
+    if (poli) out.push(poli);
+    // Los VERTEX de una POLYLINE quedan sueltos en `out`: se recogen en su polilínea.
+    const res = [];
+    let actual = null;
+    for (const x of out) {
+      if (x.t === 'POLYLINE') { actual = x; res.push(x); continue; }
+      if (x.t === 'VERTEX') { if (actual) actual.v.push(...x.v); continue; }
+      actual = null; res.push(x);
+    }
+    return { ents: res, insunits, inserts };
+  }
+  /* Evaluación de una B-spline (de Boor) en `m` puntos. */
+  function spline(cp, k, grado, m) {
+    const n = cp.length, p = grado || 3;
+    if (n < 2) return cp.slice();
+    if (k.length < n + p + 1) { return cp.slice(); }
+    const t0 = k[p], t1 = k[n], out = [];
+    for (let s = 0; s <= m; s++) {
+      const u = s === m ? t1 : t0 + ((t1 - t0) * s) / m;
+      let i = n - 1;
+      for (let j = p; j < n; j++) if (u >= k[j] && u < k[j + 1]) { i = j; break; }
+      const d = [];
+      for (let j = 0; j <= p; j++) d.push({ x: cp[i - p + j].x, y: cp[i - p + j].y });
+      for (let r = 1; r <= p; r++) for (let j = p; j >= r; j--) {
+        const a = (u - k[i - p + j]) / (k[i + 1 + j - r] - k[i - p + j] || 1);
+        d[j] = { x: (1 - a) * d[j - 1].x + a * d[j].x, y: (1 - a) * d[j - 1].y + a * d[j].y };
+      }
+      out.push(d[p]);
+    }
+    return out;
+  }
+  const rad = g => (g * Math.PI) / 180;
+  /* Cadenas de vértices {x, y, b} (bulge DXF) a partir de cada entidad, en mm. */
+  function cadenas(ents, esc) {
+    const out = [];
+    const M = v => ({ x: v.x * esc, y: v.y * esc, b: v.b || 0 });
+    for (const e of ents) {
+      if (e.t === 'LWPOLYLINE' || e.t === 'POLYLINE') {
+        if (e.v.length < 2) continue;
+        out.push({ v: e.v.map(M), cerrada: !!(e.f & 1), capa: e.capa });
+      } else if (e.t === 'LINE') {
+        if (![e.x1, e.y1, e.x2, e.y2].every(Number.isFinite)) continue;
+        out.push({ v: [{ x: e.x1 * esc, y: e.y1 * esc, b: 0 }, { x: e.x2 * esc, y: e.y2 * esc, b: 0 }], cerrada: false, capa: e.capa });
+      } else if (e.t === 'ARC') {
+        if (![e.cx, e.cy, e.r, e.a1, e.a2].every(Number.isFinite)) continue;
+        let bar = e.a2 - e.a1; while (bar <= 0) bar += 360; while (bar > 360) bar -= 360;
+        const b = Math.tan(rad(bar) / 4);
+        out.push({ v: [{ x: (e.cx + e.r * Math.cos(rad(e.a1))) * esc, y: (e.cy + e.r * Math.sin(rad(e.a1))) * esc, b }, { x: (e.cx + e.r * Math.cos(rad(e.a2))) * esc, y: (e.cy + e.r * Math.sin(rad(e.a2))) * esc, b: 0 }], cerrada: false, capa: e.capa });
+      } else if (e.t === 'CIRCLE') {
+        if (![e.cx, e.cy, e.r].every(Number.isFinite) || !(e.r > 0)) continue;
+        out.push({ v: [{ x: (e.cx - e.r) * esc, y: e.cy * esc, b: 1 }, { x: (e.cx + e.r) * esc, y: e.cy * esc, b: 1 }], cerrada: true, capa: e.capa });
+      } else if (e.t === 'SPLINE') {
+        const pts = e.fp.length >= 2 ? e.fp : spline(e.cp, e.k, e.grado, Math.max(16, 8 * e.cp.length));
+        if (pts.length < 2) continue;
+        out.push({ v: pts.map(q => ({ x: q.x * esc, y: q.y * esc, b: 0 })), cerrada: !!(e.f & 1), capa: e.capa });
+      }
+    }
+    return out;
+  }
+  const d2 = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  function invertir(c) {
+    const v = c.v.slice().reverse().map(q => ({ x: q.x, y: q.y, b: 0 }));
+    for (let i = 0; i < v.length - 1; i++) v[i].b = -c.v[c.v.length - 2 - i].b;
+    return { v, cerrada: c.cerrada, capa: c.capa };
+  }
+  /* Une líneas y arcos sueltos por sus extremos hasta cerrar contornos. */
+  function anillosDe(cadenas, tol) {
+    const cerrados = [], abiertas = [];
+    for (const c of cadenas) {
+      if (c.cerrada) { cerrados.push(c); continue; }
+      if (d2(c.v[0], c.v[c.v.length - 1]) <= tol && c.v.length > 2) { cerrados.push({ v: c.v.slice(0, -1), cerrada: true, capa: c.capa }); continue; }
+      abiertas.push(c);
+    }
+    let sueltas = 0;
+    while (abiertas.length) {
+      let cur = abiertas.shift();
+      let avanzado = true;
+      while (avanzado) {
+        avanzado = false;
+        const fin = cur.v[cur.v.length - 1];
+        if (cur.v.length > 2 && d2(fin, cur.v[0]) <= tol) { cerrados.push({ v: cur.v.slice(0, -1), cerrada: true, capa: cur.capa }); cur = null; break; }
+        for (let i = 0; i < abiertas.length; i++) {
+          let o = abiertas[i];
+          if (d2(o.v[o.v.length - 1], fin) <= tol) o = invertir(o);
+          else if (d2(o.v[0], fin) > tol) continue;
+          abiertas.splice(i, 1);
+          const v = cur.v.slice(0, -1);
+          v.push({ x: o.v[0].x, y: o.v[0].y, b: o.v[0].b });
+          cur = { v: v.concat(o.v.slice(1)), cerrada: false, capa: cur.capa };
+          avanzado = true;
+          break;
+        }
+      }
+      if (cur) sueltas++;
+    }
+    return { cerrados, sueltas };
+  }
+  /* Vértices {x, y, f} con flecha hacia fuera (mm) a partir de un anillo con bulges DXF. */
+  function conFlechas(v) {
+    let a = 0;
+    for (let i = 0; i < v.length; i++) { const p = v[i], q = v[(i + 1) % v.length]; a += p.x * q.y - q.x * p.y; }
+    const ccw = a >= 0;
+    return v.map((p, i) => {
+      const q = v[(i + 1) % v.length], c = Math.hypot(q.x - p.x, q.y - p.y);
+      const fDer = (p.b || 0) * c / 2;
+      return { x: p.x, y: p.y, f: fDer * (ccw ? 1 : -1) };
+    });
+  }
+  /* Lee el DXF y devuelve los contornos cerrados ordenados por área (mm). `unidad`: mm/cm/m fuerza la escala. */
+  function leer(texto, unidad) {
+    if (/AutoCAD Binary DXF/.test(texto.slice(0, 40))) throw new Error('Es un DXF binario: guárdalo desde el CAD como DXF de texto (ASCII).');
+    const { ents, insunits, inserts } = entidades(texto);
+    let esc = unidad === 'mm' ? 1 : unidad === 'cm' ? 10 : unidad === 'm' ? 1000 : UNID[insunits] || null;
+    const brutas = cadenas(ents, 1);
+    let unidadDetectada = esc ? (esc === 1 ? 'mm' : esc === 10 ? 'cm' : esc === 1000 ? 'm' : 'pulgadas') : null;
+    if (!esc) {
+      // Sin unidades en la cabecera: se deduce del tamaño del dibujo.
+      let maxD = 0;
+      for (const c of brutas) for (const p of c.v) maxD = Math.max(maxD, Math.abs(p.x), Math.abs(p.y));
+      esc = maxD > 5000 ? 1 : maxD > 150 ? 10 : 1000;
+      unidadDetectada = esc === 1 ? 'mm' : esc === 10 ? 'cm' : 'm';
+    }
+    const cad = cadenas(ents, esc);
+    const { cerrados, sueltas } = anillosDe(cad, 1.5);
+    const E = Engine;
+    const anillos = cerrados.map(c => {
+      const verts = conFlechas(c.v);
+      const denso = E.anillo(verts);
+      const area = Math.abs(E.areaFirmada(denso));
+      let xmin = Infinity, xmax = -Infinity, ymin = Infinity, ymax = -Infinity;
+      for (const p of denso) { xmin = Math.min(xmin, p.x); xmax = Math.max(xmax, p.x); ymin = Math.min(ymin, p.y); ymax = Math.max(ymax, p.y); }
+      return { verts, denso, area, capa: c.capa, xmin, xmax, ymin, ymax, curvo: verts.some(v => Math.abs(v.f) >= 1) };
+    }).filter(a => a.area >= 1e4).sort((a, b) => b.area - a.area);
+    return { anillos, sueltas, inserts, unidad: unidadDetectada, entidades: ents.length };
+  }
+  /* Anillos que caben enteros dentro de `ext` (y no dentro de otro hueco): candidatos a hueco. */
+  function huecosDe(anillos, ext) {
+    const E = Engine, dentro = anillos.filter(a => a !== ext && a.area < ext.area && a.denso.every(p => E.dentro(p, ext.denso)));
+    return dentro.filter(a => !dentro.some(b => b !== a && b.area > a.area && a.denso.every(p => E.dentro(p, b.denso))));
+  }
+  /* Si el anillo es una circunferencia completa (dos semicírculos), devuelve centro y diámetro en mm. */
+  function circuloDe(a) {
+    const v = a.verts;
+    if (v.length !== 2) return null;
+    const c = Math.hypot(v[1].x - v[0].x, v[1].y - v[0].y);
+    if (!(c > 0) || Math.abs(Math.abs(v[0].f) - c / 2) > 1 || Math.abs(Math.abs(v[1].f) - c / 2) > 1) return null;
+    return { x: (v[0].x + v[1].x) / 2, y: (v[0].y + v[1].y) / 2, d: c };
+  }
+  return { leer, huecosDe, circuloDe, entidades, cadenas, anillosDe, conFlechas, spline };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = DXF;
 </script>
 <script>
 /* Excel (.xlsx) mínimo sin librerías: hojas con textos, números, fórmulas con su valor calculado,
@@ -1289,8 +1676,10 @@ const cota = mm => { const v = mm / 10; return (mm % 10 ? v.toFixed(1) : String(
 /* ---------- Modelo ---------- */
 const CFG0 = { lcom: '12', solape: '50', retal: '1,00', norma: 'propia', solapeg: '', gancho: '10', margen: '0', doblado: false };
 function capa(on, dx, sx, dy, sy, pat, patcm) { return { on, dx: String(dx), sx: String(sx), dy: String(dy), sy: String(sy), pat, patcm: String(patcm) }; }
+const FORMA0 = () => ({ modo: 'rect', red: '5', pts: [], huecos: [] });
+const vx = (x, y, f = '') => ({ x: String(x), y: String(y), f: String(f) });
 function losaNueva(nombre) {
-  return { tipo: 'losa', uid: nid('l'), nombre, n: '1', lx: '6,00', ly: '5,00', canto: '25', rec: '3',
+  return { tipo: 'losa', uid: nid('l'), nombre, n: '1', lx: '6,00', ly: '5,00', canto: '25', rec: '3', forma: FORMA0(),
     inf: capa(true, 12, 20, 12, 20, 'fija', 15), sup: capa(false, 10, 20, 10, 20, 'fija', 15),
     pates: { on: false, d: '12', dens: '1', pie: '15', alto: '', cab: '20' }, refs: [] };
 }
@@ -1318,10 +1707,12 @@ function refNuevo() { return { uid: nid('r'), desc: '', d: '12', forma: 'recta',
 function proyectoEjemplo() {
   const ref = (desc, d, forma, l, pat, n) => ({ uid: nid('r'), desc, d, forma, l, pat, n });
   return { v: 2, ejemplo: true, obra: 'Obra de ejemplo', cfg: Object.assign({}, CFG0), elems: [
-    { tipo: 'losa', uid: nid('l'), nombre: 'Losa de cimentación', n: '1', lx: '13,50', ly: '8,20', canto: '50', rec: '5',
+    { tipo: 'losa', uid: nid('l'), nombre: 'Losa de cimentación', n: '1', lx: '13,50', ly: '8,20', canto: '50', rec: '5', forma: FORMA0(),
       inf: capa(true, 16, 20, 16, 20, 'auto', 15), sup: capa(true, 12, 20, 12, 20, 'auto', 15),
       pates: { on: true, d: '12', dens: '1', pie: '15', alto: '', cab: '20' }, refs: [ref('Refuerzo bajo pilares', '16', 'recta', '2,50', '15', '12')] },
     { tipo: 'losa', uid: nid('l'), nombre: 'Losa maciza planta 1', n: '1', lx: '6,40', ly: '5,10', canto: '25', rec: '3',
+      forma: { modo: 'libre', red: '5', pts: [vx('0', '0'), vx('6,40', '0', '40'), vx('6,40', '5,10'), vx('0', '5,10')],
+        huecos: [{ tipo: 'rect', x: '0,30', y: '2,00', w: '2,60', h: '1,10' }, { tipo: 'circ', x: '5,20', y: '1,00', d: '0,40' }] },
       inf: capa(true, 12, 15, 10, 20, 'fija', 15), sup: capa(false, 10, 20, 10, 20, 'fija', 15),
       pates: { on: false, d: '12', dens: '1', pie: '15', alto: '', cab: '20' }, refs: [ref('Negativos en apoyo', '12', 'L', '1,60', '15', '34')] },
     { tipo: 'viga', uid: nid('v'), nombre: 'Viga eje 2', n: '1', l: '6,40', b: '30', h: '50', rec: '3',
@@ -1362,6 +1753,17 @@ function normalizar(st) {
     const lista = v => Array.isArray(v) ? v.filter(r => r && typeof r === 'object').map(r => Object.assign(refNuevo(), r, { uid: idOk(r.uid) ? r.uid : nid('r') })) : [];
     out.refs = lista(x.refs);
     if (tipo === 'sueltas') out.barras = lista(x.barras);
+    if (tipo === 'losa') {
+      const F = Object.assign(FORMA0(), (x.forma && typeof x.forma === 'object') ? x.forma : {});
+      const pts = v => Array.isArray(v) ? v.filter(q => q && typeof q === 'object').map(q => vx(q.x ?? '', q.y ?? '', q.f ?? '')) : [];
+      F.modo = F.modo === 'libre' ? 'libre' : 'rect';
+      F.pts = pts(F.pts);
+      F.huecos = Array.isArray(F.huecos) ? F.huecos.filter(h => h && typeof h === 'object').map(h => {
+        const tipo = ['rect', 'circ', 'poly'].includes(h.tipo) ? h.tipo : 'rect';
+        return { tipo, x: String(h.x ?? ''), y: String(h.y ?? ''), w: String(h.w ?? ''), h: String(h.h ?? ''), d: String(h.d ?? ''), pts: pts(h.pts) };
+      }) : [];
+      out.forma = F;
+    }
     return out;
   });
   return s;
@@ -1425,14 +1827,48 @@ function patesHTML(L, i) {
         <p class="hint">Forma: pie | alto | cabeza | alto | pie. Alto vacío = hueco entre las dos parrillas (canto − 2 recubrimientos − diámetros).</p></div>
     </section>`;
 }
+function formaHTML(L, i) {
+  const u = L.uid, F = L.forma, p = `elems.${i}.forma`;
+  const filas = F.pts.map((v, k) => `<div class="vx-row"><span class="vx-n">${k + 1}</span>
+      ${inp(`${p}.pts.${k}.x`, v.x, `vx-${u}-${k}`, 'm', `Vértice ${k + 1}: X en metros`, 'w-auto')}
+      ${inp(`${p}.pts.${k}.y`, v.y, `vy-${u}-${k}`, 'm', `Vértice ${k + 1}: Y en metros`, 'w-auto')}
+      ${inp(`${p}.pts.${k}.f`, v.f, `vf-${u}-${k}`, 'cm', `Lado ${k + 1}→${(k + 1) % F.pts.length + 1}: flecha en cm (+ hacia fuera)`, 'w-auto')}
+      <button type="button" class="btn-icon" data-act="del-vx" data-k="${k}" aria-label="Quitar el vértice ${k + 1}">${ICON.x}</button></div>`).join('');
+  const op = (v, t, cur) => `<option value="${v}"${cur === v ? ' selected' : ''}>${t}</option>`;
+  const huecos = F.huecos.map((h, k) => {
+    const q = `${p}.huecos.${k}`;
+    const sel = `<span class="fld-i sel"><select data-path="${q}.tipo" aria-label="Tipo del hueco ${k + 1}">${op('rect', 'Rectángulo', h.tipo)}${op('circ', 'Círculo', h.tipo)}${h.tipo === 'poly' ? op('poly', 'Polígono del plano', 'poly') : ''}</select></span>`;
+    const quitar = `<button type="button" class="btn-icon" data-act="del-hu" data-k="${k}" aria-label="Quitar el hueco ${k + 1}">${ICON.x}</button>`;
+    const campos = h.tipo === 'poly' ? `<p class="hint" style="margin:0">${h.pts.length} vértices leídos del plano.</p>`
+      : h.tipo === 'circ' ? `<div class="hu-f">${fld('Centro X', q + '.x', h.x, 'm', `hx-${u}-${k}`)}${fld('Centro Y', q + '.y', h.y, 'm', `hy-${u}-${k}`)}${fld('Diámetro', q + '.d', h.d, 'm', `hd-${u}-${k}`)}</div>`
+      : `<div class="hu-f">${fld('Esquina X', q + '.x', h.x, 'm', `hx-${u}-${k}`)}${fld('Esquina Y', q + '.y', h.y, 'm', `hy-${u}-${k}`)}${fld('Ancho', q + '.w', h.w, 'm', `hw-${u}-${k}`)}${fld('Alto', q + '.h', h.h, 'm', `hh-${u}-${k}`)}</div>`;
+    return `<div class="hu"><div class="hu-top"><span class="vx-n">${k + 1}</span>${sel}${quitar}</div>${campos}</div>`;
+  }).join('');
+  return `<section class="capa capa-bordes" aria-label="Forma de la losa">
+      <h3 class="refs-t">Contorno · vértices en metros, en orden, siguiendo el borde</h3>
+      <div class="vx-h"><span></span><span>X</span><span>Y</span><span>Flecha</span><span></span></div>
+      ${filas}
+      <div class="forma-act"><button type="button" class="btn ghost" data-act="add-vx">${ICON.plus}Añadir vértice</button></div>
+      <p class="hint">Arrastra los vértices en el dibujo o escribe sus coordenadas. La flecha curva el lado que va de ese vértice al siguiente: + hacia fuera de la losa, − hacia dentro, vacío = recto.</p>
+      <h3 class="refs-t">Huecos</h3>
+      ${huecos || '<p class="hint" style="margin:0">Sin huecos.</p>'}
+      <div class="forma-act"><button type="button" class="btn ghost" data-act="add-hu">${ICON.plus}Añadir hueco</button>
+        ${fld('Redondear largos a', p + '.red', F.red, 'cm', 'fr-' + u, { cls: 'inline-red' })}</div>
+      <p class="hint">Rectángulo: esquina inferior izquierda, ancho y alto. Círculo: centro y diámetro. Las barras que cruzan un hueco se parten; los tramos de menos de 20 cm no se cuentan. Los largos se redondean hacia arriba al múltiplo indicado para agrupar las barras de los bordes curvos.</p>
+    </section>`;
+}
 function losaBody(L, i) {
-  const u = L.uid, p = `elems.${i}`;
+  if (!L.forma) L.forma = FORMA0();
+  const u = L.uid, p = `elems.${i}`, libre = L.forma.modo === 'libre';
+  const op = (v, t) => `<option value="${v}"${L.forma.modo === v ? ' selected' : ''}>${t}</option>`;
   return `<div class="grid g-geo">
-      ${fld('Largo (X)', p + '.lx', L.lx, 'm', 'lx-' + u)}${fld('Ancho (Y)', p + '.ly', L.ly, 'm', 'ly-' + u)}
+      <label class="fld" for="fm-${u}"><span class="fld-l">Forma</span><span class="fld-i sel"><select id="fm-${u}" data-path="${p}.forma.modo">${op('rect', 'Rectángulo')}${op('libre', 'Forma libre')}</select></span></label>
+      ${libre ? '' : fld('Largo (X)', p + '.lx', L.lx, 'm', 'lx-' + u) + fld('Ancho (Y)', p + '.ly', L.ly, 'm', 'ly-' + u)}
       ${fld('Canto', p + '.canto', L.canto, 'cm', 'ca-' + u)}${fld('Recubrimiento', p + '.rec', L.rec, 'cm', 're-' + u)}
       ${iguales('losa', p, L.n, u)}
     </div>
     <figure class="plano" id="pl-${u}"></figure>
+    ${libre ? formaHTML(L, i) : ''}
     ${parrillaHTML(L, i, 'inf', 'Parrilla inferior')}${parrillaHTML(L, i, 'sup', 'Parrilla superior')}${patesHTML(L, i)}`;
 }
 /* Viga */
@@ -1658,8 +2094,49 @@ function esquemaRect(Lx, Ly, capas, etX, etY, aria, ley) {
   ley.push('<span>Esquema: no se dibujan todas las barras</span>');
   return s + `<figcaption>${ley.join('')}</figcaption>`;
 }
+/* Dibujo de la losa de forma libre: contorno, huecos, muestra de barras y vértices arrastrables. */
+function esquemaLibre(L, o) {
+  const G = o.geo.libre, bb = G.caja, Lx = bb.xmax - bb.xmin, Ly = bb.ymax - bb.ymin;
+  const W = 300, H = Math.max(90, Math.min(260, (W * Ly) / Lx)), k = Math.min(W / Lx, H / Ly);
+  const pl = 14, pr = 30, pt = 14, pb = 28, vw = W + pl + pr, vh = Math.round(H + pt + pb);
+  const X = x => (pl + (x - bb.xmin) * k).toFixed(1), Y = y => (pt + (bb.ymax - y) * k).toFixed(1);
+  const camino = an => an.map((q, j) => `${j ? 'L' : 'M'}${X(q.x)} ${Y(q.y)}`).join('') + 'Z';
+  let s = `<svg class="libre" viewBox="0 0 ${vw} ${vh}" role="img" aria-label="${esc(`Losa de forma libre de ${fmtM(Lx)} por ${fmtM(Ly)} metros con ${G.nHuecos} huecos`)}" data-k="${k}" data-pl="${pl}" data-pt="${pt}" data-x0="${bb.xmin}" data-y1="${bb.ymax}">`;
+  s += `<path class="pl-c" fill-rule="evenodd" d="${G.anillos.map(camino).join('')}"/>`;
+  for (let j = 1; j < G.anillos.length; j++) s += `<path class="pl-hu" d="${camino(G.anillos[j])}"/>`;
+  const ley = [];
+  [['inf', 'Inferior', 'pl-inf', 0], ['sup', 'Superior', 'pl-sup', 2]].forEach(([c, nom, cls, off]) => {
+    const cp = o.capas[c];
+    if (!cp || !L[c].on) return;
+    for (const dir of ['x', 'y']) {
+      const d = cp.dirs[dir];
+      if (!d || !d.lineas) continue;
+      const max = dir === 'x' ? 12 : 18, paso = Math.max(1, Math.ceil(d.lineas.length / max));
+      d.lineas.forEach((ln, j) => {
+        if (j % paso) return;
+        for (const [a, b] of ln.tramos) s += dir === 'x'
+          ? `<line class="${cls}" x1="${X(a)}" y1="${(+Y(ln.Y) + off).toFixed(1)}" x2="${X(b)}" y2="${(+Y(ln.Y) + off).toFixed(1)}"/>`
+          : `<line class="${cls}" x1="${(+X(ln.Y) + off).toFixed(1)}" y1="${Y(a)}" x2="${(+X(ln.Y) + off).toFixed(1)}" y2="${Y(b)}"/>`;
+      });
+    }
+    const t = ['x', 'y'].filter(d => cp.dirs[d]).map(d => `${d.toUpperCase()} Ø${cp.dirs[d].d} c/${fmtCm(cp.dirs[d].S)}`).join(' · ');
+    if (t) ley.push(`<span class="lg ${c}">${nom}: ${t}</span>`);
+  });
+  const yb = pt + H + 9, xr = pl + W + 9, cy = pt + H / 2;
+  s += `<path class="pl-dim" d="M${pl} ${(yb - 4).toFixed(1)}v8M${pl + W} ${(yb - 4).toFixed(1)}v8M${pl} ${yb.toFixed(1)}H${pl + W}"/>`;
+  s += `<text class="pl-t" x="${pl + W / 2}" y="${(yb + 15).toFixed(1)}" text-anchor="middle">X · ${fmtM(Lx)} m</text>`;
+  s += `<path class="pl-dim" d="M${xr - 4} ${pt}h8M${xr - 4} ${(pt + H).toFixed(1)}h8M${xr} ${pt}V${(pt + H).toFixed(1)}"/>`;
+  s += `<text class="pl-t" x="${xr + 15}" y="${cy.toFixed(1)}" text-anchor="middle" transform="rotate(-90 ${xr + 15} ${cy.toFixed(1)})">Y · ${fmtM(Ly)} m</text>`;
+  G.verts.forEach((v, j) => {
+    s += `<circle class="pl-v vx" data-k="${j}" cx="${X(v.x)}" cy="${Y(v.y)}" r="7"/><text class="pl-vt" x="${X(v.x)}" y="${(+Y(v.y) + 3.5).toFixed(1)}" text-anchor="middle">${j + 1}</text>`;
+  });
+  s += '</svg>';
+  ley.push(`<span>${fmt(G.area / 1e6, 2)} m²${G.nHuecos ? ` · ${G.nHuecos} hueco${G.nHuecos > 1 ? 's' : ''}` : ''} · muestra de barras</span>`);
+  return s + `<figcaption>${ley.join('')}</figcaption>`;
+}
 function esquemaLosa(L, o) {
-  if (!o.geo) return '<p class="plano-vacio">Pon el largo y el ancho para ver el esquema de la losa.</p>';
+  if (!o.geo) return `<p class="plano-vacio">${L.forma.modo === 'libre' ? 'Completa los vértices del contorno para ver la losa.' : 'Pon el largo y el ancho para ver el esquema de la losa.'}</p>`;
+  if (o.geo.libre) return esquemaLibre(L, o);
   const capas = [], ley = [];
   [['inf', 'Inferior', 'pl-inf', 0], ['sup', 'Superior', 'pl-sup', 3]].forEach(([k, nom, cls, off]) => {
     const c = o.capas[k];
@@ -1750,14 +2227,15 @@ function geoTxt(o, corto) {
   if (o.tipo === 'muro') return `${fmtM(g.L)} × ${fmtM(g.H)} m · espesor ${fmtCm(g.E)} cm${rec}`;
   if (o.tipo === 'pilar') return `${fmtCm(g.B)}×${fmtCm(g.H)} cm · alto ${fmtM(g.A)} m${rec}`;
   if (o.tipo === 'sueltas') return `${o.pos.length} ${o.pos.length === 1 ? 'tipo' : 'tipos'} de barra`;
-  return `${fmtM(g.Lx)} × ${fmtM(g.Ly)} m${g.H ? ` · canto ${fmtCm(g.H)} cm` : ''}${rec}`;
+  const forma = g.libre ? ` (forma libre${g.libre.nHuecos ? `, ${g.libre.nHuecos} hueco${g.libre.nHuecos > 1 ? 's' : ''}` : ''})` : '';
+  return `${fmtM(g.Lx)} × ${fmtM(g.Ly)} m${forma}${g.H ? ` · canto ${fmtCm(g.H)} cm` : ''}${rec}`;
 }
 function ratio(o) {
   const g = o.geo;
   if (!g || o.tipo === 'sueltas') return '–';
   return o.tipo === 'viga' || o.tipo === 'pilar' ? `${fmt(o.kg / g.ml, 1)} kg/m` : `${fmt(o.kg / g.area, 1)} kg/m²`;
 }
-const barrasTxt = c => c ? `${fmt(c.nb)} × ${fmtM(c.D)} m${c.tramos > 1 ? ` · ${c.tramos} tramos` : ''}` : '';
+const barrasTxt = c => !c ? '' : c.familias > 1 ? `${fmt(c.nb)} barras en ${c.familias} largos, máx. ${fmtM(c.D)} m${c.tramos > 1 ? ` · ${c.tramos} tramos` : ''}` : `${fmt(c.nb)} × ${fmtM(c.D)} m${c.tramos > 1 ? ` · ${c.tramos} tramos` : ''}`;
 function actualizarDatos() {
   byId('cfgMsgs').innerHTML = R.errores.map(e => `<li class="e">${esc(e)}</li>`).join('');
   if (!R.cfg) {
@@ -2090,12 +2568,59 @@ function onEdit(ev) {
     const w = el.closest('.fld-i');
     if (w) w.classList.toggle('bad', String(val).trim() !== '' && !Number.isFinite(E.num(val)));
   }
+  if (/\.forma\.modo$/.test(path)) {
+    const L = getPath(state, path.replace(/\.forma\.modo$/, ''));
+    if (val === 'libre' && !L.forma.pts.length) {
+      const lx = E.num(L.lx) > 0 ? E.num(L.lx) : 6, ly = E.num(L.ly) > 0 ? E.num(L.ly) : 5;
+      L.forma.pts = [vx('0', '0'), vx(coord(lx), '0'), vx(coord(lx), coord(ly)), vx('0', coord(ly))];
+    }
+    estructura();
+    return;
+  }
+  if (/\.forma\.huecos\.\d+\.tipo$/.test(path)) { estructura(); return; }
   efectos(el);
   efectosAjustes(path);
   quitarEjemplo();
   programarCalculo();
   programarBorrador();
 }
+const coord = m => String(Math.round(m * 100) / 100).replace('.', ',');
+
+/* Arrastre de los vértices en el dibujo de la losa libre. */
+let arrastre = null;
+document.addEventListener('pointerdown', ev => {
+  const c = ev.target.closest('.vx');
+  if (!c) return;
+  const svg = c.closest('svg'), card = c.closest('.losa');
+  if (!svg || !card) return;
+  ev.preventDefault();
+  c.setPointerCapture(ev.pointerId);
+  arrastre = { c, svg, i: +card.dataset.i, k: +c.dataset.k, uid: card.dataset.uid, label: c.nextElementSibling };
+});
+document.addEventListener('pointermove', ev => {
+  if (!arrastre || ev.pointerId !== undefined && !arrastre.c.hasPointerCapture(ev.pointerId)) return;
+  const { svg, c, label } = arrastre;
+  const m = svg.getScreenCTM();
+  if (!m) return;
+  const pt = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse());
+  const k = +svg.dataset.k, x0 = +svg.dataset.x0, y1 = +svg.dataset.y1;
+  const xm = Math.round((x0 + (pt.x - +svg.dataset.pl) / k) / 10) / 100, ym = Math.round((y1 - (pt.y - +svg.dataset.pt) / k) / 10) / 100;
+  c.setAttribute('cx', pt.x.toFixed(1)); c.setAttribute('cy', pt.y.toFixed(1));
+  if (label) { label.setAttribute('x', pt.x.toFixed(1)); label.setAttribute('y', (pt.y + 3.5).toFixed(1)); }
+  const ix = byId(`vx-${arrastre.uid}-${arrastre.k}`), iy = byId(`vy-${arrastre.uid}-${arrastre.k}`);
+  if (ix) ix.value = coord(xm);
+  if (iy) iy.value = coord(ym);
+  arrastre.movido = true;
+});
+const soltar = ev => {
+  if (!arrastre) return;
+  const { uid, k, movido } = arrastre;
+  arrastre = null;
+  if (!movido) return;
+  for (const id of [`vx-${uid}-${k}`, `vy-${uid}-${k}`]) { const el = byId(id); if (el) el.dispatchEvent(new Event('input', { bubbles: true })); }
+};
+document.addEventListener('pointerup', soltar);
+document.addEventListener('pointercancel', soltar);
 
 let pendiente = 'nuevo';
 function pedirNuevo(tipo) {
@@ -2172,10 +2697,41 @@ document.addEventListener('click', ev => {
       break;
     }
     case 'del-ref': { const fila = b.closest('.ref'); el[fila.dataset.lista === 'barras' ? 'barras' : 'refs'].splice(+fila.dataset.j, 1); estructura(); break; }
+    case 'add-vx': {
+      const P = el.forma.pts, a = P[P.length - 1], z = P[0];
+      const nx = P.length >= 2 ? (E.num(a.x) + E.num(z.x)) / 2 : 0, ny = P.length >= 2 ? (E.num(a.y) + E.num(z.y)) / 2 : 0;
+      P.push(vx(coord(Number.isFinite(nx) ? nx : 0), coord(Number.isFinite(ny) ? ny : 0)));
+      estructura();
+      requestAnimationFrame(() => { const f = byId(`vx-${el.uid}-${P.length - 1}`); if (f) { f.focus(); f.select(); } });
+      break;
+    }
+    case 'del-vx': el.forma.pts.splice(+b.dataset.k, 1); estructura(); break;
+    case 'add-hu': {
+      const xs = el.forma.pts.map(q => E.num(q.x)).filter(Number.isFinite), ys = el.forma.pts.map(q => E.num(q.y)).filter(Number.isFinite);
+      const cx = xs.length ? (Math.min(...xs) + Math.max(...xs)) / 2 : 1, cy = ys.length ? (Math.min(...ys) + Math.max(...ys)) / 2 : 1;
+      el.forma.huecos.push({ tipo: 'rect', x: coord(cx - 0.5), y: coord(cy - 0.5), w: '1', h: '1', d: '', pts: [] });
+      estructura();
+      break;
+    }
+    case 'del-hu': el.forma.huecos.splice(+b.dataset.k, 1); estructura(); break;
     case 'nuevo': pedirNuevo('nuevo'); break;
     case 'ejemplo': pedirNuevo('ejemplo'); break;
     case 'nuevo-ok': aplicarNuevo(); break;
     case 'nuevo-no': byId('confNuevo').hidden = true; break;
+    case 'dxf': byId('dxfFile').click(); break;
+    case 'dxf-crear': if (dxfLeido) crearLosaDXF(); break;
+    case 'dxf-cerrar': dxfLeido = null; byId('dxfRes').hidden = true; byId('dxfRes').innerHTML = ''; break;
+    case 'ia': if (claveIA()) byId('iaFile').click(); else formularioClave(); break;
+    case 'ia-clave': formularioClave(); break;
+    case 'ia-clave-ok': {
+      const k = (byId('iaClave').value || '').trim();
+      if (!/^sk-ant-/.test(k)) { toast('La clave empieza por sk-ant-'); break; }
+      LS.set(KEY_API, k); byId('iaRes').hidden = true; byId('iaRes').innerHTML = ''; byId('iaFile').click();
+      break;
+    }
+    case 'ia-clave-borrar': try { localStorage.removeItem(KEY_API); } catch (e) {} byId('iaRes').hidden = true; byId('iaRes').innerHTML = ''; toast('Clave borrada'); break;
+    case 'ia-crear': if (iaLeido) crearLosasIA(); break;
+    case 'ia-cerrar': iaLeido = null; byId('iaRes').hidden = true; byId('iaRes').innerHTML = ''; break;
     case 'pdf': exportarPDF(); break;
     case 'xlsx': exportarXLSX(); break;
     case 'copiar': copiar(); break;
@@ -2198,6 +2754,244 @@ window.atrasAndroid = () => {
   if (ui.tab !== 'datos') { mostrarTab('datos'); return true; }
   return false;
 };
+
+/* ---------- Importar un plano DXF ---------- */
+let dxfLeido = null;
+function leerArchivo(archivo, modo) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onerror = () => rej(new Error('No se pudo leer el archivo.'));
+    r.onload = () => res(r.result);
+    if (modo === 'texto') r.readAsText(archivo); else r.readAsDataURL(archivo);
+  });
+}
+async function importarDXF(archivo, unidad) {
+  const cont = byId('dxfRes');
+  cont.hidden = false;
+  cont.innerHTML = '<p class="hint" style="margin:0">Leyendo el plano…</p>';
+  try {
+    const texto = await leerArchivo(archivo, 'texto');
+    const r = DXF.leer(texto, unidad);
+    dxfLeido = { r, nombre: archivo.name.replace(/\.dxf$/i, ''), archivo, unidad };
+    renderDXF();
+  } catch (e) {
+    cont.innerHTML = `<div class="aviso e"><span>${esc(e.message || 'No se pudo leer el DXF.')}</span></div><div class="forma-act"><button type="button" class="btn ghost" data-act="dxf-cerrar">Cerrar</button></div>`;
+  }
+}
+function renderDXF() {
+  const cont = byId('dxfRes'), { r, nombre } = dxfLeido;
+  const sel = dxfLeido.sel ?? 0;
+  if (!r.anillos.length) {
+    cont.innerHTML = `<div class="aviso e"><span>No hay contornos cerrados en el plano (${r.entidades} entidades${r.inserts ? `, ${r.inserts} bloques insertados que no se leen` : ''}${r.sueltas ? `, ${r.sueltas} líneas sueltas sin cerrar` : ''}). Dibuja la losa como polilínea cerrada o líneas que se toquen, y descompón los bloques.</span></div>
+      <div class="forma-act"><button type="button" class="btn ghost" data-act="dxf-cerrar">Cerrar</button></div>`;
+    return;
+  }
+  const ext = r.anillos[sel], huecos = DXF.huecosDe(r.anillos, ext);
+  const marcados = dxfLeido.huecos || new Set(huecos.map((h) => r.anillos.indexOf(h)));
+  dxfLeido.huecos = marcados;
+  const fila = (a, i) => `<label class="dxf-fila"><input type="radio" name="dxf-ext" value="${i}"${i === sel ? ' checked' : ''}><span><b>${fmtM(a.xmax - a.xmin)} × ${fmtM(a.ymax - a.ymin)} m</b> · ${fmt(a.area / 1e6, 2)} m² · capa ${esc(a.capa)} · ${a.verts.length} vértices${a.curvo ? ', con curvas' : ''}</span></label>`;
+  const filaH = h => { const i = r.anillos.indexOf(h); return `<label class="dxf-fila"><input type="checkbox" name="dxf-hu" value="${i}"${marcados.has(i) ? ' checked' : ''}><span>${fmtM(h.xmax - h.xmin)} × ${fmtM(h.ymax - h.ymin)} m · ${fmt(h.area / 1e6, 2)} m² · capa ${esc(h.capa)}${h.curvo ? ' · curvo' : ''}</span></label>`; };
+  const op = (v, t) => `<option value="${v}"${(dxfLeido.unidad || '') === v ? ' selected' : ''}>${t}</option>`;
+  cont.innerHTML = `<div class="dxf-cab"><b>${esc(nombre)}</b> · ${r.anillos.length} contorno${r.anillos.length > 1 ? 's' : ''} cerrado${r.anillos.length > 1 ? 's' : ''} · unidades del dibujo: <b>${r.unidad}</b>
+      <span class="fld-i sel w-auto" style="display:inline-flex"><select id="dxfUnidad" aria-label="Unidades del dibujo">${op('', 'Según el archivo')}${op('mm', 'mm')}${op('cm', 'cm')}${op('m', 'm')}</select></span></div>
+    ${r.sueltas ? `<p class="hint" style="margin:0">${r.sueltas} línea${r.sueltas > 1 ? 's' : ''} sin cerrar no se usa${r.sueltas > 1 ? 'n' : ''}.</p>` : ''}
+    <h3 class="refs-t">¿Cuál es la losa?</h3>
+    <div class="dxf-lista">${r.anillos.slice(0, 12).map(fila).join('')}${r.anillos.length > 12 ? `<p class="hint" style="margin:0">…y ${r.anillos.length - 12} contornos más pequeños.</p>` : ''}</div>
+    <h3 class="refs-t">Huecos dentro de la losa</h3>
+    <div class="dxf-lista">${huecos.length ? huecos.map(filaH).join('') : '<p class="hint" style="margin:0">No hay contornos cerrados dentro de este.</p>'}</div>
+    <div class="forma-act"><button type="button" class="btn primary" data-act="dxf-crear">Crear losa con este contorno</button><button type="button" class="btn ghost" data-act="dxf-cerrar">Cancelar</button></div>
+    <p class="hint">Si la medida no cuadra, cambia las unidades. El contorno se traslada para que su esquina inferior izquierda quede en (0, 0).</p>`;
+}
+function crearLosaDXF() {
+  const { r, nombre } = dxfLeido, ext = r.anillos[dxfLeido.sel ?? 0];
+  const x0 = ext.xmin, y0 = ext.ymin;
+  const m = v => coord3((v - 0) / 1000);
+  const pts = ext.verts.map(v => vx(m(v.x - x0), m(v.y - y0), Math.abs(v.f) >= 1 ? String(Math.round(v.f / 10 * 10) / 10).replace('.', ',') : ''));
+  const huecos = [...dxfLeido.huecos].map(i => r.anillos[i]).filter(Boolean).map(h => {
+    const c = DXF.circuloDe(h);
+    if (c) return { tipo: 'circ', x: m(c.x - x0), y: m(c.y - y0), w: '', h: '', d: m(c.d), pts: [] };
+    return { tipo: 'poly', x: '', y: '', w: '', h: '', d: '', pts: h.verts.map(v => vx(m(v.x - x0), m(v.y - y0), Math.abs(v.f) >= 1 ? String(Math.round(v.f / 10 * 10) / 10).replace('.', ',') : '')) };
+  });
+  const L = losaNueva(nombre || `Losa ${E.letra(state.elems.length)}`);
+  L.forma = { modo: 'libre', red: '5', pts, huecos };
+  state.elems.push(L);
+  dxfLeido = null;
+  byId('dxfRes').hidden = true; byId('dxfRes').innerHTML = '';
+  estructura();
+  requestAnimationFrame(() => { const c = document.querySelector(`[data-uid="${L.uid}"]`); if (c) c.scrollIntoView({ behavior: suave(), block: 'start' }); });
+  toast('Losa creada desde el plano. Revisa el contorno y añade los armados.');
+}
+const coord3 = m => String(Math.round(m * 1000) / 1000).replace('.', ',');
+byId('dxfFile').addEventListener('change', ev => { const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (f) importarDXF(f, ''); });
+document.addEventListener('change', ev => {
+  if (ev.target.id === 'dxfUnidad' && dxfLeido) { importarDXF(dxfLeido.archivo, ev.target.value); return; }
+  if (ev.target.name === 'dxf-ext' && dxfLeido) { dxfLeido.sel = +ev.target.value; dxfLeido.huecos = null; renderDXF(); return; }
+  if (ev.target.name === 'dxf-hu' && dxfLeido) { const i = +ev.target.value; if (ev.target.checked) dxfLeido.huecos.add(i); else dxfLeido.huecos.delete(i); }
+});
+
+/* ---------- Leer un plano (foto o PDF) con IA ---------- */
+const KEY_API = 'despiece-losas:apikey:v1';
+const IA = {
+  url: 'https://api.anthropic.com/v1/messages',
+  modelo: 'claude-opus-5-5',
+  maxLado: 2576,
+  esquema: (() => {
+    const num = { type: 'number' }, nulo = t => ({ anyOf: [t, { type: 'null' }] });
+    const malla = { type: 'object', additionalProperties: false, required: ['dx_mm', 'sx_cm', 'dy_mm', 'sy_cm'],
+      properties: { dx_mm: { type: 'integer' }, sx_cm: num, dy_mm: { type: 'integer' }, sy_cm: num } };
+    return { type: 'object', additionalProperties: false, required: ['losas', 'notas'], properties: {
+      losas: { type: 'array', items: { type: 'object', additionalProperties: false,
+        required: ['nombre', 'contorno', 'huecos', 'canto_cm', 'recubrimiento_cm', 'inferior', 'superior', 'notas', 'confianza'],
+        properties: {
+          nombre: { type: 'string' },
+          contorno: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['x', 'y', 'flecha_cm'], properties: { x: num, y: num, flecha_cm: num } } },
+          huecos: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['tipo', 'x', 'y', 'ancho', 'alto', 'diametro'],
+            properties: { tipo: { type: 'string', enum: ['rect', 'circ'] }, x: num, y: num, ancho: num, alto: num, diametro: num } } },
+          canto_cm: nulo(num), recubrimiento_cm: nulo(num), inferior: nulo(malla), superior: nulo(malla),
+          notas: { type: 'array', items: { type: 'string' } }, confianza: num,
+        } } },
+      notas: { type: 'array', items: { type: 'string' } },
+    } };
+  })(),
+  instrucciones: `Eres un ingeniero de estructuras experto en leer planos de armado de losas de hormigón armado (losas macizas, forjados macizos, losas y zapatas de cimentación).
+Lee el plano adjunto y devuelve, para cada losa que aparezca, los datos necesarios para hacer su despiece de ferralla:
+- "contorno": los vértices del contorno exterior en metros, en orden siguiendo el borde (sentido antihorario), con el origen en la esquina inferior izquierda de la losa. Saca las medidas de las cotas del plano; no las estimes a ojo si hay cotas. Si un lado es curvo, pon en el vértice de inicio de ese lado "flecha_cm" = flecha del arco en cm (positiva si abomba hacia fuera de la losa, negativa hacia dentro); si es recto, 0.
+- "huecos": huecos, patios, escaleras y pasos de instalaciones dentro de la losa. "rect": x e y de la esquina inferior izquierda, ancho y alto (m), diametro 0. "circ": x e y del centro y diametro (m), ancho y alto 0.
+- "canto_cm" y "recubrimiento_cm": si figuran en el plano o en su leyenda; si no, null.
+- "inferior" y "superior": la parrilla de cada cara como diámetro en mm y separación en cm en dirección X (barras paralelas al eje X) y en dirección Y; null si esa parrilla no aparece. Si solo se indica una armadura base "#Ø12 c/20" sin dirección, úsala en X e Y.
+- "notas": dudas, cotas que no se leen bien, refuerzos adicionales, negativos o pates que aparezcan y no entren en los campos anteriores.
+- "confianza": de 0 a 1, cuánto fías de la lectura.
+Si el plano tiene varias losas, devuelve una por losa con su nombre o eje. Si no hay ninguna losa legible, devuelve "losas" vacío y explica el motivo en "notas". No inventes valores: lo que no esté en el plano va como null o en las notas.`,
+};
+function claveIA() { return LS.get(KEY_API) || ''; }
+function formularioClave() {
+  const cont = byId('iaRes');
+  cont.hidden = false;
+  cont.innerHTML = `<div class="ia-clave">
+    <p class="hint" style="margin:0">Para leer planos hace falta una clave de la API de Claude (Anthropic). Se guarda solo en este teléfono y cada lectura cuesta unos céntimos. Consíguela en <b>console.anthropic.com</b> → API keys.</p>
+    <label class="fld" for="iaClave"><span class="fld-l">Clave de API</span><span class="fld-i"><input id="iaClave" type="password" value="${esc(claveIA())}" placeholder="sk-ant-…" autocomplete="off" spellcheck="false"></span></label>
+    <div class="forma-act"><button type="button" class="btn primary" data-act="ia-clave-ok">Guardar y elegir el plano</button>${claveIA() ? '<button type="button" class="btn ghost danger" data-act="ia-clave-borrar">Borrar clave</button>' : ''}<button type="button" class="btn ghost" data-act="ia-cerrar">Cancelar</button></div>
+  </div>`;
+  requestAnimationFrame(() => { const i = byId('iaClave'); if (i) i.focus(); });
+}
+/* Imagen reducida a 2576 px de lado mayor, como JPEG (fotos) o PNG (dibujos). */
+async function imagenParaIA(archivo) {
+  const bmp = await createImageBitmap(archivo);
+  const k = Math.min(1, IA.maxLado / Math.max(bmp.width, bmp.height));
+  const w = Math.round(bmp.width * k), h = Math.round(bmp.height * k);
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(bmp, 0, 0, w, h);
+  bmp.close && bmp.close();
+  const png = /png|webp|gif/i.test(archivo.type) && w * h <= 6e6;
+  const url = png ? cv.toDataURL('image/png') : cv.toDataURL('image/jpeg', 0.92);
+  return { media_type: png ? 'image/png' : 'image/jpeg', data: url.split(',')[1], url };
+}
+/* Cuerpo de la petición a la API (sin la clave). */
+async function peticionIA(archivo) {
+  const esPdf = archivo.type === 'application/pdf' || /\.pdf$/i.test(archivo.name);
+  let bloque, vista = null;
+  if (esPdf) {
+    if (archivo.size > 25e6) throw new Error('El PDF pesa más de 25 MB: exporta solo la hoja de la losa.');
+    const url = await leerArchivo(archivo, 'datos');
+    bloque = { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: url.split(',')[1] } };
+  } else {
+    const img = await imagenParaIA(archivo);
+    vista = img.url;
+    bloque = { type: 'image', source: { type: 'base64', media_type: img.media_type, data: img.data } };
+  }
+  const cuerpo = {
+    model: IA.modelo, max_tokens: 16000,
+    system: IA.instrucciones,
+    output_config: { effort: 'high', format: { type: 'json_schema', schema: IA.esquema } },
+    fallbacks: 'default',
+    messages: [{ role: 'user', content: [bloque, { type: 'text', text: 'Lee este plano de armado y devuelve el JSON con las losas, sus contornos, huecos y parrillas.' }] }],
+  };
+  return { cuerpo, vista };
+}
+async function leerPlanoIA(archivo) {
+  const cont = byId('iaRes');
+  cont.hidden = false;
+  cont.innerHTML = '<p class="hint" style="margin:0">Preparando el plano…</p>';
+  try {
+    const { cuerpo, vista } = await peticionIA(archivo);
+    cont.innerHTML = `<p class="hint" style="margin:0">Leyendo el plano con IA… suele tardar entre 20 segundos y 2 minutos.</p>${vista ? `<img class="ia-img" src="${vista}" alt="Plano enviado">` : ''}`;
+    const resp = await fetch(IA.url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': claveIA(), 'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true', 'anthropic-beta': 'server-side-fallback-2026-07-01' },
+      body: JSON.stringify(cuerpo),
+    });
+    if (!resp.ok) {
+      let detalle = '';
+      try { detalle = (await resp.json()).error.message; } catch (e) {}
+      const t = resp.status === 401 ? 'La clave de API no es válida.' : resp.status === 429 ? 'Demasiadas peticiones seguidas: espera un momento.' : resp.status === 402 ? 'La cuenta de la API no tiene saldo.' : `Error ${resp.status} de la API.`;
+      throw new Error(t + (detalle ? ` (${detalle})` : ''));
+    }
+    const msg = await resp.json();
+    if (msg.stop_reason === 'refusal') throw new Error('La IA ha rechazado leer este archivo' + (msg.stop_details && msg.stop_details.explanation ? `: ${msg.stop_details.explanation}` : '.'));
+    const texto = (msg.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    if (msg.stop_reason === 'max_tokens') throw new Error('La respuesta quedó cortada. Prueba con una imagen de una sola losa.');
+    let datos;
+    try { datos = JSON.parse(texto); } catch (e) { throw new Error('La respuesta de la IA no es válida. Vuelve a intentarlo.'); }
+    iaLeido = { datos, vista, archivo: archivo.name };
+    renderIA();
+  } catch (e) {
+    const red = e instanceof TypeError;
+    cont.innerHTML = `<div class="aviso e"><span>${esc(red ? 'No hay conexión con la API. Comprueba internet.' : e.message || 'No se pudo leer el plano.')}</span></div>
+      <div class="forma-act"><button type="button" class="btn ghost" data-act="ia">Probar otra vez</button><button type="button" class="btn ghost" data-act="ia-clave">Cambiar la clave</button><button type="button" class="btn ghost" data-act="ia-cerrar">Cerrar</button></div>`;
+  }
+}
+let iaLeido = null;
+const DIAM_CERCANO = d => E.DIAMS.reduce((a, b) => Math.abs(b - d) < Math.abs(a - d) ? b : a, E.DIAMS[0]);
+function renderIA() {
+  const cont = byId('iaRes'), { datos, vista, archivo } = iaLeido;
+  const losas = Array.isArray(datos.losas) ? datos.losas : [];
+  const malla = (m, t) => !m ? `${t}: no figura` : `${t}: X Ø${m.dx_mm} c/${fmt(m.sx_cm, 0)} · Y Ø${m.dy_mm} c/${fmt(m.sy_cm, 0)}`;
+  const tarjeta = L => {
+    const xs = L.contorno.map(p => p.x), ys = L.contorno.map(p => p.y);
+    const ancho = xs.length ? Math.max(...xs) - Math.min(...xs) : 0, alto = ys.length ? Math.max(...ys) - Math.min(...ys) : 0;
+    return `<div class="ia-losa"><b>${esc(L.nombre || 'Losa')}</b>
+      <span>${L.contorno.length ? `${fmt(ancho, 2)} × ${fmt(alto, 2)} m · ${L.contorno.length} vértices${L.contorno.some(p => Math.abs(p.flecha_cm) >= 1) ? ' · lados curvos' : ''}` : 'Sin contorno legible'} · ${L.huecos.length} hueco${L.huecos.length === 1 ? '' : 's'}</span>
+      <span>Canto ${L.canto_cm != null ? fmt(L.canto_cm, 0) + ' cm' : '—'} · recubrimiento ${L.recubrimiento_cm != null ? fmt(L.recubrimiento_cm, 1) + ' cm' : '—'}</span>
+      <span>${malla(L.inferior, 'Inferior')}</span><span>${malla(L.superior, 'Superior')}</span>
+      <span>Confianza de la lectura: ${fmt((L.confianza || 0) * 100, 0)} %</span>
+      ${L.notas && L.notas.length ? `<ul>${L.notas.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}</div>`;
+  };
+  const utiles = losas.filter(L => L.contorno && L.contorno.length >= 3);
+  cont.innerHTML = `<div class="dxf-cab"><b>${esc(archivo)}</b> · ${losas.length} losa${losas.length === 1 ? '' : 's'} leída${losas.length === 1 ? '' : 's'}</div>
+    ${vista ? `<img class="ia-img" src="${vista}" alt="Plano enviado">` : ''}
+    ${losas.map(tarjeta).join('')}
+    ${datos.notas && datos.notas.length ? `<ul class="notas">${datos.notas.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
+    <div class="aviso"><span>Es una propuesta: comprueba cotas, huecos, diámetros y separaciones con el plano antes de pedir hierro.</span></div>
+    <div class="forma-act">${utiles.length ? `<button type="button" class="btn primary" data-act="ia-crear">Crear ${utiles.length === 1 ? 'la losa' : utiles.length + ' losas'}</button>` : ''}<button type="button" class="btn ghost" data-act="ia">Leer otro plano</button><button type="button" class="btn ghost" data-act="ia-cerrar">Cerrar</button></div>`;
+}
+function crearLosasIA() {
+  const losas = (iaLeido.datos.losas || []).filter(L => L.contorno && L.contorno.length >= 3);
+  let ultima = null;
+  for (const L of losas) {
+    const xs = L.contorno.map(p => p.x), ys = L.contorno.map(p => p.y), x0 = Math.min(...xs), y0 = Math.min(...ys);
+    const N = losaNueva(String(L.nombre || '').trim() || `Losa ${E.letra(state.elems.length)}`);
+    N.forma = { modo: 'libre', red: '5',
+      pts: L.contorno.map(p => vx(coord3(p.x - x0), coord3(p.y - y0), Math.abs(p.flecha_cm) >= 1 ? coord(p.flecha_cm) : '')),
+      huecos: (L.huecos || []).map(h => h.tipo === 'circ'
+        ? { tipo: 'circ', x: coord3(h.x - x0), y: coord3(h.y - y0), w: '', h: '', d: coord3(h.diametro), pts: [] }
+        : { tipo: 'rect', x: coord3(h.x - x0), y: coord3(h.y - y0), w: coord3(h.ancho), h: coord3(h.alto), d: '', pts: [] }) };
+    if (L.canto_cm != null && L.canto_cm > 0) N.canto = coord(L.canto_cm);
+    if (L.recubrimiento_cm != null && L.recubrimiento_cm >= 0) N.rec = coord(L.recubrimiento_cm);
+    for (const [k, m] of [['inf', L.inferior], ['sup', L.superior]]) {
+      if (!m) { N[k].on = false; continue; }
+      N[k] = capa(true, DIAM_CERCANO(m.dx_mm), coord(m.sx_cm), DIAM_CERCANO(m.dy_mm), coord(m.sy_cm), 'fija', 15);
+    }
+    state.elems.push(N);
+    ultima = N;
+  }
+  iaLeido = null;
+  byId('iaRes').hidden = true; byId('iaRes').innerHTML = '';
+  estructura();
+  if (ultima) requestAnimationFrame(() => { const c = document.querySelector(`[data-uid="${ultima.uid}"]`); if (c) c.scrollIntoView({ behavior: suave(), block: 'start' }); });
+  toast(`${losas.length === 1 ? 'Losa creada' : losas.length + ' losas creadas'} desde el plano. Revisa los datos.`);
+}
+byId('iaFile').addEventListener('change', ev => { const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (f) leerPlanoIA(f); });
 
 /* ---------- Exportar ---------- */
 let pDescargas = Promise.resolve(null);

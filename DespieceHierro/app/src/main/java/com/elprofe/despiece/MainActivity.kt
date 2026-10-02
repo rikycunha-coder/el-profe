@@ -11,6 +11,8 @@ import android.os.Bundle
 import android.util.Base64
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -21,6 +23,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import android.app.Activity
 import android.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -50,6 +53,15 @@ class MainActivity : ComponentActivity() {
         if (destino != null && archivo != null) guardar(archivo, destino)
     }
 
+    /** Respuesta pendiente de un <input type="file"> de la página (DXF, foto o PDF del plano). */
+    private var eleccionArchivo: ValueCallback<Array<Uri>>? = null
+
+    private val elegirArchivo = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
+        val respuesta = eleccionArchivo
+        eleccionArchivo = null
+        respuesta?.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(r.resultCode, r.data))
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +82,24 @@ class MainActivity : ComponentActivity() {
                 WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, false)
             }
             addJavascriptInterface(Puente(), "Android")
+            webChromeClient = object : WebChromeClient() {
+                override fun onShowFileChooser(
+                    view: WebView,
+                    filePathCallback: ValueCallback<Array<Uri>>,
+                    params: FileChooserParams,
+                ): Boolean {
+                    eleccionArchivo?.onReceiveValue(null)
+                    eleccionArchivo = filePathCallback
+                    return try {
+                        elegirArchivo.launch(params.createIntent())
+                        true
+                    } catch (e: ActivityNotFoundException) {
+                        eleccionArchivo = null
+                        Toast.makeText(this@MainActivity, "No hay gestor de archivos para elegir el plano.", Toast.LENGTH_LONG).show()
+                        false
+                    }
+                }
+            }
             webViewClient = object : WebViewClient() {
                 override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
                     cargador.shouldInterceptRequest(request.url)
@@ -121,6 +151,8 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        eleccionArchivo?.onReceiveValue(null)
+        eleccionArchivo = null
         web.destroy()
         super.onDestroy()
     }

@@ -24,12 +24,23 @@ Cuatro pestañas:
 
 - **Datos**: ajustes de cálculo y los elementos de la obra. Cada elemento tiene su esquema dibujado
   y sus capas de armado con interruptor:
-  - **Losa**: parrillas inferior y superior (X e Y), patillas y pates.
+  - **Losa**: parrillas inferior y superior (X e Y), patillas y pates (caballetes) con sus medidas.
+    Puede ser un **rectángulo** o de **forma libre**: vértices en metros, lados curvos (flecha en cm)
+    y huecos (rectángulos, círculos o polígonos del plano). Las barras se cortan en los huecos y en
+    los bordes curvos, y se agrupan por largos redondeados.
   - **Viga**: armaduras inferior y superior, estribos con zona de apoyo.
   - **Muro**: caras exterior e interior, extremos de las barras y arranques en la zapata.
   - **Pilar**: barras por cara, **piel** (intermedias) con su propio Ø, cercos con cercos
     interiores y trabas, y esperas en la zapata.
   - **Refuerzos** en cualquier elemento y **barras sobre comanda** sueltas.
+- **Desde un plano** (tarjeta en Datos):
+  - **Importar DXF**: lee los contornos cerrados del dibujo (polilíneas con arcos, líneas, arcos,
+    círculos y splines), deja elegir cuál es la losa y qué huecos tiene, y crea la losa de forma libre.
+    Sin conexión. Un DWG hay que exportarlo a DXF de texto desde el CAD.
+  - **Leer plano con IA**: envía una foto o un PDF del plano a la API de Claude y propone losas con
+    contorno, huecos, canto, recubrimiento y parrillas, para revisarlas antes de crearlas. Necesita
+    internet y una clave de API (console.anthropic.com → API keys) que se guarda solo en el teléfono;
+    cada lectura cuesta unos céntimos. Es una propuesta: hay que comprobarla con el plano.
 - **Planilla**: cada posición con su marca, croquis acotado, largo de corte, unidades y peso.
 - **Cortes**: plan de corte por diámetro dibujado sobre la barra comercial, con retales útiles.
 - **Pedido**: peso de planilla, barras a comprar, aprovechamiento, cuantía y, si se pide, el margen
@@ -61,7 +72,7 @@ Eurocódigo). Comprueba solapes, patillas y anclajes con el proyecto de estructu
 |---|---|
 | `app/src/main/assets/web/index.html` | La página: motor de cálculo, interfaz, PDF y Excel |
 | `app/src/main/assets/web/fuentes/` | Barlow, Barlow Condensed e IBM Plex Mono (SIL OFL) |
-| `app/src/main/java/.../MainActivity.kt` | WebView sin conexión y puente para guardar, compartir y copiar |
+| `app/src/main/java/.../MainActivity.kt` | WebView sin conexión, selector de archivos y puente para guardar, compartir y copiar |
 | `pruebas/web.test.mjs` | Pruebas del motor de cálculo y del Excel con Node |
 
 ## Compilar
