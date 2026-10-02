@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema oscuro: el WebView informa a la página de prefers-color-scheme: dark. -->
+    <style name="Theme.Despiece" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/fondo</item>
+        <item name="android:colorAccent">@color/acento</item>
+    </style>
+
+    <color name="fondo">#0D1318</color>
+    <color name="acento">#F2C230</color>
+</resources>

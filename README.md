@@ -7,6 +7,9 @@ de tu MetaTrader con el feed de precios de tu propio bróker. Disponibles para *
 - **Señales de oro por tendencia** — medias, RSI, ADX y ATR sobre XAUUSD.
 - **Escáner de patrones y figuras** — velas japonesas, canales, triángulos, cuñas y dobles techos.
 
+> 📱 Este repositorio también incluye una **app Android de despiece de hierro** para losas, vigas,
+> muros y pilares de hormigón armado: ver [`DespieceHierro/`](DespieceHierro/README.md).
+
 ## Qué es y qué no es
 
 **Qué es:** un sistema de señales que corre en tu terminal, analiza cada vela de XAUUSD en

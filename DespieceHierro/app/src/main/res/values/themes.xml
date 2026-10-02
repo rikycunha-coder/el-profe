@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema claro: la página usa su paleta clara (prefers-color-scheme: light). -->
+    <style name="Theme.Despiece" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/fondo</item>
+        <item name="android:colorAccent">@color/acento</item>
+    </style>
+
+    <color name="fondo">#E6E9EB</color>
+    <color name="acento">#16222C</color>
+    <color name="ic_launcher_background">#16222C</color>
+</resources>
