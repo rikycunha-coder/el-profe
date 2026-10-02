@@ -76,6 +76,23 @@ prueba('margen de compra aparte del neto', () => {
   assert.ok(con.tot.brutoKgM > con.tot.brutoKg);
 });
 
+prueba('pates: medidas a mano y alto automático', () => {
+  const conPates = pates => Object.assign({}, losa, { canto: '20', sup: capa(true, 10, 20, 'no', 15), pates: Object.assign({ on: true, d: '12', dens: '1' }, pates) });
+  const auto = E.calcular({ cfg: cfg(), elems: [conPates({ pie: '10', alto: '', cab: '25' })] }).pos.find(p => p.forma === 'pate');
+  // Hueco: 200 − 2 × 30 − (12 + 12 + 10 + 10) = 96 mm → 90 mm
+  assert.equal(auto.h, 90); assert.equal(auto.f, 100); assert.equal(auto.t, 250);
+  assert.equal(auto.len, 2 * 100 + 2 * 90 + 250);
+  assert.equal(auto.uds, 20);   // 5 × 4 m² × 1 ud/m²
+  const fijo = E.calcular({ cfg: cfg(), elems: [conPates({ pie: '10', alto: '12', cab: '25' })] });
+  const p2 = fijo.pos.find(p => p.forma === 'pate');
+  assert.equal(p2.h, 120); assert.equal(p2.len, 200 + 240 + 250);
+  assert.ok(fijo.elems[0].avisos.some(a => a.includes('mayor que el hueco')));
+  const viejo = E.calcular({ cfg: cfg(), elems: [conPates({})] }).pos.find(p => p.forma === 'pate');
+  assert.equal(viejo.f, 150); assert.equal(viejo.t, 200);   // sin medidas: pie 15 y cabeza 20 cm
+  const mal = E.calcular({ cfg: cfg(), elems: [conPates({ pie: 'x' })] });
+  assert.ok(mal.elems[0].errores.some(e => e.includes('Pates')));
+});
+
 prueba('ajustes fuera de rango dan error', () => {
   assert.ok(E.calcular({ cfg: cfg({ gancho: '1' }), elems: [losa] }).errores.length > 0);
   assert.ok(E.calcular({ cfg: cfg({ margen: '80' }), elems: [losa] }).errores.length > 0);

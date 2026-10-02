@@ -604,16 +604,25 @@ const Engine = (() => {
       o.capas[k] = info;
     }
     if (patesOn) {
-      const d = diametro(L.pates.d, 'Pates', o), dens = num(L.pates.dens);
+      /* Pate o caballete: pie | alto | cabeza | alto | pie. Alto vacío = hueco entre las dos parrillas. */
+      const Pt = L.pates;
+      const d = diametro(Pt.d, 'Pates', o), dens = num(Pt.dens);
+      const pie = vacio(Pt.pie) ? PIE_PATE : Math.round(num(Pt.pie) * 10);
+      const cab = vacio(Pt.cab) ? CAB_PATE : Math.round(num(Pt.cab) * 10);
+      const hueco = H - 2 * R - dUsados.reduce((a, b) => a + b, 0);
+      const auto = vacio(Pt.alto);
+      const h = auto ? f10(hueco) : Math.round(num(Pt.alto) * 10);
       if (d !== null && !(dens > 0)) o.errores.push('Pates: indica cuántos por m².');
+      else if (!(pie > 0) || !(cab > 0) || !(h > 0)) o.errores.push('Pates: revisa las medidas del pie, el alto y la cabeza.');
       else if (d !== null) {
-        const h = f10(H - 2 * R - dUsados.reduce((a, b) => a + b, 0));
-        if (h < 50) o.avisos.push('Pates: el canto no deja altura suficiente.');
+        if (auto && h < 50) o.avisos.push('Pates: el canto no deja altura suficiente.');
         else {
+          if (!auto && h > hueco) o.avisos.push(`Pates: el alto (${fmtCm(h)} cm) es mayor que el hueco entre parrillas (${fmtCm(Math.max(0, hueco))} cm).`);
           const nb = Math.ceil(lx * ly * dens - 1e-9);
-          const len = 2 * PIE_PATE + 2 * h + CAB_PATE;
-          o.grupos.push({ capa: 'pate', d, nb, D: len, piezas: [{ pate: true, len, f: PIE_PATE, h, t: CAB_PATE }], titulo: 'Pates · soporte de la parrilla superior', nota: `${fmt(dens, dens % 1 ? 2 : 0)} ud/m²` });
-          o.capas.pates = { d, nb, h, len };
+          const len = 2 * pie + 2 * h + cab;
+          o.grupos.push({ capa: 'pate', d, nb, D: len, piezas: [{ pate: true, len, f: pie, h, t: cab }], titulo: 'Pates · soporte de la parrilla superior',
+            nota: `${fmt(dens, dens % 1 ? 2 : 0)} ud/m² · pie ${fmtCm(pie)}, alto ${fmtCm(h)}${auto ? ' (auto)' : ''}, cabeza ${fmtCm(cab)} cm` });
+          o.capas.pates = { d, nb, h, len, auto };
         }
       }
     }
@@ -1283,7 +1292,7 @@ function capa(on, dx, sx, dy, sy, pat, patcm) { return { on, dx: String(dx), sx:
 function losaNueva(nombre) {
   return { tipo: 'losa', uid: nid('l'), nombre, n: '1', lx: '6,00', ly: '5,00', canto: '25', rec: '3',
     inf: capa(true, 12, 20, 12, 20, 'fija', 15), sup: capa(false, 10, 20, 10, 20, 'fija', 15),
-    pates: { on: false, d: '12', dens: '1' }, refs: [] };
+    pates: { on: false, d: '12', dens: '1', pie: '15', alto: '', cab: '20' }, refs: [] };
 }
 function vigaNueva(nombre) {
   return { tipo: 'viga', uid: nid('v'), nombre, n: '1', l: '5,00', b: '30', h: '50', rec: '3',
@@ -1311,10 +1320,10 @@ function proyectoEjemplo() {
   return { v: 2, ejemplo: true, obra: 'Obra de ejemplo', cfg: Object.assign({}, CFG0), elems: [
     { tipo: 'losa', uid: nid('l'), nombre: 'Losa de cimentación', n: '1', lx: '13,50', ly: '8,20', canto: '50', rec: '5',
       inf: capa(true, 16, 20, 16, 20, 'auto', 15), sup: capa(true, 12, 20, 12, 20, 'auto', 15),
-      pates: { on: true, d: '12', dens: '1' }, refs: [ref('Refuerzo bajo pilares', '16', 'recta', '2,50', '15', '12')] },
+      pates: { on: true, d: '12', dens: '1', pie: '15', alto: '', cab: '20' }, refs: [ref('Refuerzo bajo pilares', '16', 'recta', '2,50', '15', '12')] },
     { tipo: 'losa', uid: nid('l'), nombre: 'Losa maciza planta 1', n: '1', lx: '6,40', ly: '5,10', canto: '25', rec: '3',
       inf: capa(true, 12, 15, 10, 20, 'fija', 15), sup: capa(false, 10, 20, 10, 20, 'fija', 15),
-      pates: { on: false, d: '12', dens: '1' }, refs: [ref('Negativos en apoyo', '12', 'L', '1,60', '15', '34')] },
+      pates: { on: false, d: '12', dens: '1', pie: '15', alto: '', cab: '20' }, refs: [ref('Negativos en apoyo', '12', 'L', '1,60', '15', '34')] },
     { tipo: 'viga', uid: nid('v'), nombre: 'Viga eje 2', n: '1', l: '6,40', b: '30', h: '50', rec: '3',
       inf: { on: true, nb: '3', d: '16', pat: 'fija', patcm: '20' }, sup: { on: true, nb: '2', d: '12', pat: 'fija', patcm: '20' },
       est: { on: true, d: '8', s1: '10', zona: '1,20', s2: '20', ini: '5' },
@@ -1373,7 +1382,7 @@ const stale = { planilla: true, cortes: true, pedido: true };
 
 /* ---------- Piezas de formulario ---------- */
 function fld(label, path, val, unit, id, o = {}) {
-  return `<label class="fld ${o.cls || ''}" for="${id}"${o.wrapId ? ` id="${o.wrapId}"` : ''}${o.hidden ? ' hidden' : ''}><span class="fld-l">${label}</span><span class="fld-i"><input id="${id}" data-path="${path}" value="${esc(val)}" inputmode="${o.im || 'decimal'}" autocomplete="off">${unit ? `<span class="u">${unit}</span>` : ''}</span></label>`;
+  return `<label class="fld ${o.cls || ''}" for="${id}"${o.wrapId ? ` id="${o.wrapId}"` : ''}${o.hidden ? ' hidden' : ''}><span class="fld-l">${label}</span><span class="fld-i"><input id="${id}" data-path="${path}" value="${esc(val)}" inputmode="${o.im || 'decimal'}" autocomplete="off"${o.ph ? ` placeholder="${o.ph}"` : ''}>${unit ? `<span class="u">${unit}</span>` : ''}</span></label>`;
 }
 function inp(path, val, id, unit, aria, cls, im) {
   return `<span class="fld-i ${cls || 'w-s'}"><input id="${id}" data-path="${path}" value="${esc(val)}" inputmode="${im || 'decimal'}" autocomplete="off" aria-label="${aria}"><span class="u">${unit}</span></span>`;
@@ -1409,9 +1418,11 @@ function parrillaHTML(L, i, k, titulo) {
 }
 function patesHTML(L, i) {
   const P = L.pates, u = L.uid, p = `elems.${i}.pates`;
-  return `<section class="capa capa-pate" id="pw-${u}" aria-label="Pates"${L.sup.on ? '' : ' hidden'}>
-      <div class="capa-head">${sw(`pton-${u}`, `${p}.on`, P.on, 'Pates', `ptb-${u}`)}<span class="capa-kg" id="ptkg-${u}"></span></div>
-      <div class="capa-body" id="ptb-${u}"${P.on ? '' : ' hidden'}>${fila(`ptl-${u}`, 'Soportes de la parrilla superior', `${selD(p + '.d', P.d, 'ptd-' + u, 'w-d')}${inp(p + '.dens', P.dens, 'ptn-' + u, 'ud/m²', 'Pates por metro cuadrado')}<output class="cnt" id="pto-${u}"></output>`)}</div>
+  return `<section class="capa capa-pate" id="pw-${u}" aria-label="Pates o caballetes"${L.sup.on ? '' : ' hidden'}>
+      <div class="capa-head">${sw(`pton-${u}`, `${p}.on`, P.on, 'Pates (caballetes)', `ptb-${u}`)}<span class="capa-kg" id="ptkg-${u}"></span></div>
+      <div class="capa-body" id="ptb-${u}"${P.on ? '' : ' hidden'}>${fila(`ptl-${u}`, 'Soportes de la parrilla superior', `${selD(p + '.d', P.d, 'ptd-' + u, 'w-d')}${inp(p + '.dens', P.dens, 'ptn-' + u, 'ud/m²', 'Pates por metro cuadrado')}<output class="cnt" id="pto-${u}"></output>`)}
+        <div class="grid g-aj">${fld('Pie', p + '.pie', P.pie, 'cm', 'ptp-' + u)}${fld('Alto', p + '.alto', P.alto, 'cm', 'pta-' + u, { ph: 'auto' })}${fld('Cabeza', p + '.cab', P.cab, 'cm', 'ptc-' + u)}</div>
+        <p class="hint">Forma: pie | alto | cabeza | alto | pie. Alto vacío = hueco entre las dos parrillas (canto − 2 recubrimientos − diámetros).</p></div>
     </section>`;
 }
 function losaBody(L, i) {
@@ -1771,7 +1782,7 @@ function actualizarDatos() {
         txt(`${k}kg-${u}`, c && el[k].on ? `${fmt(kgDe(p => p.capa === k), 0)} kg` : '');
       }
       const pc = o.capas.pates;
-      txt('pto-' + u, pc ? `${fmt(pc.nb)} pates · alto ${fmtCm(pc.h)} cm` : '');
+      txt('pto-' + u, pc ? `${fmt(pc.nb)} de ${fmtM(pc.len)} m · alto ${fmtCm(pc.h)} cm${pc.auto ? ' (auto)' : ''}` : '');
       txt('ptkg-' + u, pc ? `${fmt(kgDe(p => p.capa === 'pate'), 0)} kg` : '');
       byId('pl-' + u) && (byId('pl-' + u).innerHTML = esquemaLosa(el, o));
     } else if (el.tipo === 'viga') {
